@@ -1,0 +1,6 @@
+[Unit]
+Description=Service to copy the x509 proxy to the XRootD buffer
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/copy_grid_proxy.sh

@@ -1,0 +1,7 @@
+[Unit]
+Description=Service to rsync the grid-security directory with the XRootD buffer, if no cvmfs is available there.
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/copy_grid-security.sh
+
