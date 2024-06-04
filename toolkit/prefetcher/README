@@ -1,0 +1,36 @@
+Linking against XRootD:
+- a symlink needs to exist: sudo ln -s /usr/lib64/libXrdCl.so.3.0.0 /usr/lib64/libXrdCl.so
+- development headers are necessary for compilation; can be checked with: 
+  $ rpm -qa | grep xrootd
+  additionally:
+  $ dnf info <package-name>
+  and install with
+  $ sudo yum install xrootd-devel
+  and
+  $ dnf install xrootd-client-devel
+
+check what the linker is looking for:
+ld -lXrdCl --verbose
+
+
+
+Compile:
+$ g++ -o prefetcher prefetcher.cpp -I/usr/include/xrootd -L/usr/lib64/ -lXrdCl
+
+
+Testing:
+root://xrootd-cms.infn.it:1094//store/data/Run2017E/DoubleMuon/NANOAOD/UL2017_MiniAODv2_NanoAODv9-v1/120000/0D15F7DB-C723-C347-89D6-2FCD43B40E41.root
+
+Debugging:
+- try: export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
+- try to update the db: sudo updatedb
+- try to locate the include files (headers):
+  $ locate XrdCl/XrdClFile.hh
+  or manually:
+  $ sudo find / -name "XrdClFile.hh" 2>/dev/null
+- if xrootd-client-devel is installed, try:
+  $ repoquery -l xrootd-client-devel-1:5.6.3-2.el8.x86_64
+- it could be that the cl package is actually not installed, so check:
+  $ dnf list installed | grep xrootd-client-devel
+- especially when using a CVMFS stack, sometime dependencies are difficult to handle
+  -> more easy to use a container
