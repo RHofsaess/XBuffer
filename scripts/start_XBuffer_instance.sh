@@ -13,7 +13,7 @@
 # ---------- Config ----------
 IMAGE="rhofsaess/alma9_proxy_sha1" #"rhofsaess/cc7_proxy" # "rhofsaess/alma9_proxy"  # "rhofsaess/alma8_proxy" #pulled from https://hub.docker.com/u/rhofsaess 
 BASEDIR=/path/to/basedir
-WORKSPACE=/path/to/cahe/basedir
+WORKSPACE=/path/to/cache/basedir
 CACHE=$WORKSPACE/cache
 INSTANCE=proxy
 # ----------------------------
