@@ -27,3 +27,16 @@ After pushing to dockerhub with `$ docker push your-dockerhub-username/image-nam
 
 ## Scripts
 This directory includes all scripts necessary for automatization of the setup and monitoring. Additionally, some other tools are provided (that may be outsourced in the future in own repositories).
+
+
+
+# Setup
+
+## Cache
+
+### Considerations
+- size: how fast a full turnaround? -> bandwidth, expected data and "required" cache hit rate need to be evaluated 
+- parallel FS (with quota):
+  - gpfs? https://www.ibm.com/docs/en/storage-scale-ece/5.1.8?topic=vdisks-block-size https://www.reddit.com/r/IBM/comments/18iepjz/gpfs_question_on_setting_block_size/
+
+- scratch space per node -> not ideal but possible
