@@ -1,0 +1,16 @@
+services:
+  proxy:
+    container_name: client_compiled
+    image: rhofsaess/alma9_dev
+    volumes:
+      - type: bind
+        source: ../../scripts
+        target: /scripts
+      - type: bind
+        source: ../xrootd
+        target: /xrootd
+      - type: bind
+        source: ../build
+        target: /build
+    entrypoint: /scripts/client_compiled.sh
+    tty: true
