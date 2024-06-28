@@ -19,11 +19,5 @@ git submodule init
 
 cd $basedir
 mkdir build
-cd ./build
-
-cd $basedir
-
-
-xrootd -v
 
 echo "Done."
