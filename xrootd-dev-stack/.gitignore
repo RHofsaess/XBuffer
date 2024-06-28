@@ -1,2 +1,4 @@
 xrootd/
 build/
+logs/
+cache/

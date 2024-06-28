@@ -5,6 +5,7 @@
 #eval `git config --global --add safe.directory /xrootd/src/XrdCeph`  # tbt
 git config --global --list
 
+##### building #####
 cd /build
 cmake3 -DCMAKE_INSTALL_PREFIX=. ../xrootd
 ###########################################

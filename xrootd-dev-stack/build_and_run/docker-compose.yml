@@ -1,0 +1,140 @@
+services:
+  server:
+    container_name: server_minimal-1
+    # adapt image, if the compiled version should be used!
+    image: rhofsaess/alma9_xrootd
+    environment:
+      #- X509_USER_PROXY=/tmp/YOUR-PROXY
+      #- XRD_LOGLEVEL=Debug
+    volumes:
+      # ----- Scenario 3: -----
+      #- type: bind
+      #  source: /cvmfs/grid.cern.ch/etc/grid-security/
+      #  target: /etc/grid-security/
+      #- type: bind
+      #  source: ./proxy
+      #  target: /tmp/proxy
+      # ----- When compiled version should be used -----
+      #- type: bind
+      #  source: ./xrootd
+      #  target: /xrootd
+      #- type: bind
+      #  source: ./build
+      #  target: /build
+      - type: bind
+        source: ../configs
+        target: /xrdconfigs
+      - type: bind
+        source: ../scripts
+        target: /scripts
+      - type: bind
+        source: ./store
+        target: /storage
+      - type: bind
+        source: ./logs
+        target: /logs
+      #- ../.gitconfig/root/.gitconfig
+    entrypoint: /scripts/server.sh
+    # Compiled:
+    #entrypoint: /scripts/server_compiled.sh
+    ports:
+      - "1094:1094"
+    networks:
+      network1:
+        ipv4_address: 10.5.0.5
+    tty: true
+
+  proxy:
+    container_name: proxy_compile-1
+    image: rhofsaess/alma9_dev
+    environment:
+      #- X509_USER_PROXY=/tmp/YOUR-PROXY
+      #- XRD_LOGLEVEL=Debug
+    volumes:
+      #- type: bind
+      #  source: /cvmfs/grid.cern.ch/etc/grid-security/certificates
+      #  target: /etc/grid-security/certificates
+      #- type: bind
+      #  source: ./proxy
+      #  target: /tmp/YOUR-PROXY
+      - type: bind
+        source: ../configs
+        target: /xrdconfigs
+      - type: bind
+        source: ../scripts
+        target: /scripts
+      - type: bind
+        source: ./cache
+        target: /cache
+      - type: bind
+        source: ./xrootd
+        target: /xrootd
+      - type: bind
+        source: ./build
+        target: /build
+      - type: bind
+        source: ./logs
+        target: /logs
+      # For compilation to prevent git protection errors
+      - ../.gitconfig:/root/.gitconfig
+    entrypoint: /scripts/build_and_run.sh
+    # just run without new building:
+    #entrypoint: /scripts/proxy_compiled.sh
+    # For when a default xrootd version is used: (in this case, also the image should be adapted!)
+    #entrypoint: /scripts/proxy.sh
+    networks:
+      network1:
+        ipv4_address: 10.5.0.6
+    tty: true
+
+  client:
+    container_name: client_minimal-1
+    # adapt image, if the compiled version should be used!
+    image: rhofsaess/alma9_xrootd
+    environment:
+      #- X509_USER_PROXY=/tmp/YOUR-PROXY
+      - XRD_LOGLEVEL=Debug
+    volumes:
+      # ----- Scenario 3: -----
+      #- type: bind
+      #  source: /cvmfs/grid.cern.ch/etc/grid-security/certificates
+      #  target: /etc/grid-security/certificates
+      #- type: bind
+      #  source: ./proxy
+      #  target: /tmp/YOUR-PROXY
+      # ----- When compiled version should be used -----
+      #- type: bind
+      #  source: ./xrootd
+      #  target: /xrootd
+      #- type: bind
+      #  source: ./build
+      #  target: /build
+      - type: bind
+        source: ./logs
+        target: /logs
+      - type: bind
+        source: ../scripts
+        target: /scripts
+      - ../configs/client-plugin-proxy.conf:/etc/xrootd/client.plugins.d/client-plugin-proxy.conf
+      # Comment in, if compiled version is used and errors due to git protection happen
+      #- ../.gitconfig:/root/.gitconfig
+    # Scenario 1:
+    entrypoint: /scripts/client.sh
+    # Scenario 2:
+    #entrypoint: /scripts/client_remote.sh
+    # Compiled:
+    #entrypoint: /scripts/client_compiled.sh
+    # Remote compiled:
+    #entrypoint: /scripts/client_remote_compiled.sh
+    networks:
+      network1:
+        ipv4_address: 10.5.0.7
+    tty: true
+
+networks:
+  network1:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/16
+         gateway: 10.5.0.1
