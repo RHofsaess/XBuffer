@@ -1,0 +1,17 @@
+services:
+  proxy:
+    container_name: compile_container
+    image: rhofsaess/alma9_dev
+    volumes:
+      - type: bind
+        source: ../scripts
+        target: /scripts
+      - type: bind
+        source: ./xrootd
+        target: /xrootd
+      - type: bind
+        source: ./build
+        target: /build
+      - ../.gitconfig:/root/.gitconfig
+    entrypoint: /scripts/build.sh
+    tty: true
