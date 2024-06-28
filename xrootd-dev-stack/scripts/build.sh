@@ -1,9 +1,9 @@
 #!/bin/bash
+# Instructions taken from: https://xrootd-howto.readthedocs.io/en/latest/Compile/
+
 #eval `git config --global --add safe.directory /xrootd`  # tbt
 #eval `git config --global --add safe.directory /xrootd/src/XrdCeph`  # tbt
 git config --global --list
-
-cd /xrootd
 
 cd /build
 cmake3 -DCMAKE_INSTALL_PREFIX=. ../xrootd
@@ -15,6 +15,8 @@ cmake3 -DCMAKE_INSTALL_PREFIX=. ../xrootd
 #    support Erasure Coding: -DENABLE_XRDEC=True
 #    support ASAN (CentOS 8 only): -DENABLE_ASAN=True
 ###########################################
+echo "+++++ NOTE: if the building fails, try to comment in the 'make clean' "
+#make clean
 make -j 8
 
 /build/src/xrootd -v
