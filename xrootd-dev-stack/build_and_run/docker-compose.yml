@@ -3,9 +3,9 @@ services:
     container_name: server_minimal-1
     # adapt image, if the compiled version should be used!
     image: rhofsaess/alma9_xrootd
-    environment:
-      #- X509_USER_PROXY=/tmp/YOUR-PROXY
+    #environment:
       #- XRD_LOGLEVEL=Debug
+      #- X509_USER_PROXY=/tmp/YOUR-PROXY
     volumes:
       # ----- Scenario 3: -----
       #- type: bind
@@ -47,9 +47,9 @@ services:
   proxy:
     container_name: proxy_compile-1
     image: rhofsaess/alma9_dev
-    environment:
-      #- X509_USER_PROXY=/tmp/YOUR-PROXY
+    #environment:
       #- XRD_LOGLEVEL=Debug
+      #- X509_USER_PROXY=/tmp/YOUR-PROXY
     volumes:
       #- type: bind
       #  source: /cvmfs/grid.cern.ch/etc/grid-security/certificates
@@ -92,8 +92,8 @@ services:
     # adapt image, if the compiled version should be used!
     image: rhofsaess/alma9_xrootd
     environment:
-      #- X509_USER_PROXY=/tmp/YOUR-PROXY
       - XRD_LOGLEVEL=Debug
+      #- X509_USER_PROXY=/tmp/YOUR-PROXY
     volumes:
       # ----- Scenario 3: -----
       #- type: bind
