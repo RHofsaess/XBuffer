@@ -39,6 +39,8 @@ rm -r /cache/*
 
 # create log file
 touch /logs/proxy_build_run.log
+# set permission again (necessary for initial run)
+chmod -R 777 /logs
 echo "START: $(date) ----------------------------" > /logs/proxy_build_run.log
 
 ##### start server #####
