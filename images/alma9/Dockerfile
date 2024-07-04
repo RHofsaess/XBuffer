@@ -40,6 +40,7 @@ RUN dnf install -y python3-devel \
 RUN python3 -m pip install -U pip
 
 # Monitoring
+RUN dnf install -y lsof
 RUN python3 -m pip install pandas influxdb-client psutil
 
 # Other packages
