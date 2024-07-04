@@ -9,15 +9,23 @@ echo "START: $(date) ----------------------------" > /logs/client_remote.log
 
 # wait for startup of other containers and compilation
 # Note: this may needs to be adapted
-wait=20
-echo "-------Waiting for containers to come up...-------"
-for ((i=${wait}; i>0; i--)); do
-  echo " Waiting for $i more seconds"
-  sleep 1
-done
+#wait=20
+#echo "-------Waiting for containers to come up...-------"
+#for ((i=${wait}; i>0; i--)); do
+#  echo " Waiting for $i more seconds"
+#  sleep 1
+#done
+
+pushd /work/CMSSW_14_1_0_pre4/src/
+source /work/CMSSW_14_1_0_pre4/src/setup_cmssw.sh
+cmsenv
+scram b -j4 | tee -a /logs/client_remote.log
+cmsRun analysis_test.py | tee -a /logs/client_remote.log
+popd
+
 
 # transfer a file
-xrdcp -d 2 -f root://eospublic.cern.ch//eos/opendata/cms/Run2016H/DoubleMuon/NANOAOD/UL2016_MiniAODv2_NanoAODv9-v1/2510000/B7AA7F04-5D5F-514A-83A6-9A275198852C.root /logs &> /logs/client_remote.log
+#xrdcp -d 2 -f root://eospublic.cern.ch//eos/opendata/cms/Run2016H/DoubleMuon/NANOAOD/UL2016_MiniAODv2_NanoAODv9-v1/2510000/B7AA7F04-5D5F-514A-83A6-9A275198852C.root /logs &> /logs/client_remote.log
 #xrdcp -d 2 -f root://eospublic.cern.ch//eos/opendata/cms/Run2016H/DoubleMuon/NANOAOD/UL2016_MiniAODv2_NanoAODv9-v1/2510000/183BFB78-7B5E-734F-BBF5-174A73020F89.root /logs &> /logs/client_remote.log
 #xrdcp -d 2 -f root://eospublic.cern.ch//eos/opendata/cms/Run2016H/DoubleMuon/NANOAOD/UL2016_MiniAODv2_NanoAODv9-v1/2510000/2C6A0345-8E2E-9B41-BB51-DB56DFDFB89A.root /logs &> /logs/client_remote.log
 #xrdcp -d 2 -f root://eospublic.cern.ch//eos/opendata/cms/Run2016H/DoubleMuon/NANOAOD/UL2016_MiniAODv2_NanoAODv9-v1/2510000/B7AA7F04-5D5F-514A-83A6-9A275198852C.root /logs &> /logs/client_remote.log

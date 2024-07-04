@@ -47,16 +47,16 @@ services:
   proxy:
     container_name: proxy_compile-1
     image: rhofsaess/alma9_dev_v5-7-0_sha1
-    #environment:
-      #- XRD_LOGLEVEL=Debug
-      #- X509_USER_PROXY=/tmp/YOUR-PROXY
+    environment:
+      - XRD_LOGLEVEL=Debug
+      - X509_USER_PROXY=/tmp/YOUR-PROXY
     volumes:
-      #- type: bind
-      #  source: /cvmfs/grid.cern.ch/etc/grid-security/certificates
-      #  target: /etc/grid-security/certificates
-      #- type: bind
-      #  source: ./proxy
-      #  target: /tmp/YOUR-PROXY
+      - type: bind
+        source: /cvmfs/grid.cern.ch/etc/grid-security/certificates
+        target: /etc/grid-security/certificates
+      - type: bind
+        source: /home/arturgo/cmssw_test/CMSSW_14_1_0_pre4/src/x509up_for_rucio
+        target: /tmp/YOUR-PROXY
       - type: bind
         source: ../configs
         target: /xrdconfigs
@@ -90,7 +90,7 @@ services:
   client:
     container_name: client_minimal-1
     # adapt image, if the compiled version should be used!
-    image: rhofsaess/alma9_v5-7-0_sha1
+    image: rhofsaess/alma9_dev_v5-7-0_sha1
     environment:
       - XRD_LOGLEVEL=Debug
       #- X509_USER_PROXY=/tmp/YOUR-PROXY
@@ -103,25 +103,52 @@ services:
       #  source: ./proxy
       #  target: /tmp/YOUR-PROXY
       # ----- When compiled version should be used -----
-      #- type: bind
-      #  source: ./xrootd
-      #  target: /xrootd
-      #- type: bind
-      #  source: ./build
-      #  target: /build
+      - type: bind
+        source: ./xrootd
+        target: /xrootd
+      - type: bind
+        source: ./build
+        target: /build
+      - type: bind
+        source: /cvmfs/cms.cern.ch
+        target: /cvmfs/cms.cern.ch
+      - type: bind
+        source: /cvmfs/grid.cern.ch
+        target: /cvmfs/grid.cern.ch
+      - type: bind
+        source: /cvmfs/sft.cern.ch
+        target: /cvmfs/sft.cern.ch
+      - type: bind
+        source: /home/arturgo/cmssw_test
+        target: /work
+      - type: bind
+        source: /home/arturgo/T1_DE_KIT
+        target: /T1_DE_KIT/
+      - type: bind
+        source: /home/arturgo/T1_IT_CNAF
+        target: /T1_IT_CNAF
+      - type: bind
+        source: /cvmfs/grid.cern.ch/etc/grid-security/certificates
+        target: /etc/grid-security/certificates
+      - type: bind
+        source: /cvmfs/grid.cern.ch/etc/grid-security/vomses
+        target: /etc/grid-security/vomses
+      - type: bind
+        source: /cvmfs/grid.cern.ch/etc/grid-security/vomsdir
+        target: /etc/grid-security/vomsdir
       - type: bind
         source: ./logs
         target: /logs
       - type: bind
         source: ../scripts
         target: /scripts
-      - ../configs/client-plugin-proxy.conf:/etc/xrootd/client.plugins.d/client-plugin-proxy.conf
+      #- ../configs/client-plugin-proxy.conf:/etc/xrootd/client.plugins.d/client-plugin-proxy.conf
       # Comment in, if compiled version is used and errors due to git protection happen
       #- ../.gitconfig:/root/.gitconfig
     # Scenario 1:
-    entrypoint: /scripts/client.sh
+    #entrypoint: /scripts/client.sh
     # Scenario 2:
-    #entrypoint: /scripts/client_remote.sh
+    entrypoint: /scripts/client_remote.sh
     # Compiled:
     #entrypoint: /scripts/client_compiled.sh
     # Remote compiled:
