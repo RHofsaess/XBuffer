@@ -1,9 +1,10 @@
 FROM gitlab-registry.cern.ch/linuxsupport/alma9-base
 
-##################### INFO ######################################
-# available at: rhofsaess/alma9_dev or rhofsaess/alma9_dev_sha1 #
-# Last tested with XRootD v5.6.9                                #
-#################################################################
+########################## INFO ###############################
+# Current version: XRootD v5.7.0                              #
+# Image available at: rhofsaess/alma9_dev_5-7-0 or            #
+# rhofsaess/alma9_dev_5-7-0_sha1                              #
+###############################################################
 MAINTAINER Robin Hofsaess <Robin.Hofsaess@kit.edu>
 
 RUN dnf -y update && dnf -y clean all
@@ -60,4 +61,3 @@ RUN dnf install -y vim sudo voms-clients-java
 
 RUN dnf update -y
 RUN dnf clean all
-

@@ -2,7 +2,7 @@ services:
   server:
     container_name: server_minimal-1
     # adapt image, if the compiled version should be used!
-    image: rhofsaess/alma9_xrootd
+    image: rhofsaess/alma9_v5-7-0_sha1
     #environment:
       #- XRD_LOGLEVEL=Debug
       #- X509_USER_PROXY=/tmp/YOUR-PROXY
@@ -46,7 +46,7 @@ services:
 
   proxy:
     container_name: proxy_compile-1
-    image: rhofsaess/alma9_dev
+    image: rhofsaess/alma9_dev_v5-7-0_sha1
     #environment:
       #- XRD_LOGLEVEL=Debug
       #- X509_USER_PROXY=/tmp/YOUR-PROXY
@@ -90,7 +90,7 @@ services:
   client:
     container_name: client_minimal-1
     # adapt image, if the compiled version should be used!
-    image: rhofsaess/alma9_xrootd
+    image: rhofsaess/alma9_v5-7-0_sha1
     environment:
       - XRD_LOGLEVEL=Debug
       #- X509_USER_PROXY=/tmp/YOUR-PROXY

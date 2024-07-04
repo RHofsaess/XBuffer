@@ -1,7 +1,7 @@
 services:
   proxy:
     container_name: compile_container
-    image: rhofsaess/alma9_dev
+    image: rhofsaess/alma9_dev_v5-7-0_sha1
     volumes:
       - type: bind
         source: ../scripts
