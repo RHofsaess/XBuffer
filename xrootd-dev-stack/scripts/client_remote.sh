@@ -16,10 +16,25 @@ echo "START: $(date) ----------------------------" > /logs/client_remote.log
 #  sleep 1
 #done
 
-pushd /work/CMSSW_14_1_0_pre4/src/
-source /work/CMSSW_14_1_0_pre4/src/setup_cmssw.sh
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+export SITECONFIG_PATH=/T1_DE_KIT/KIT-HOREKA
+
+if [ ! -d /work/CMSSW_14_1_0_pre5 ]; then
+pushd /work
+cmsrel CMSSW_14_1_0_pre5
+cd CMSSW_14_1_0_pre5/src
 cmsenv
-scram b -j4 | tee -a /logs/client_remote.log
+git cms-addpkg Utilities/XrdAdaptor
+git cms-addpkg FWCore/Catalog
+git cms-addpkg IOPool/Input
+git checkout master
+scram b -j6
+popd
+fi
+
+pushd /work/CMSSW_14_1_0_pre5/src/
+cmsenv
+scram b -j6 | tee -a /logs/client_remote.log
 cmsRun analysis_test.py | tee -a /logs/client_remote.log
 popd
 

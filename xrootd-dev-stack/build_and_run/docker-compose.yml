@@ -1,48 +1,48 @@
 services:
-  server:
-    container_name: server_minimal-1
-    # adapt image, if the compiled version should be used!
-    image: rhofsaess/alma9_v5-7-0_sha1
-    #environment:
-      #- XRD_LOGLEVEL=Debug
-      #- X509_USER_PROXY=/tmp/YOUR-PROXY
-    volumes:
-      # ----- Scenario 3: -----
-      #- type: bind
-      #  source: /cvmfs/grid.cern.ch/etc/grid-security/
-      #  target: /etc/grid-security/
-      #- type: bind
-      #  source: ./proxy
-      #  target: /tmp/proxy
-      # ----- When compiled version should be used -----
-      #- type: bind
-      #  source: ./xrootd
-      #  target: /xrootd
-      #- type: bind
-      #  source: ./build
-      #  target: /build
-      - type: bind
-        source: ../configs
-        target: /xrdconfigs
-      - type: bind
-        source: ../scripts
-        target: /scripts
-      - type: bind
-        source: ./store
-        target: /storage
-      - type: bind
-        source: ./logs
-        target: /logs
-      #- ../.gitconfig/root/.gitconfig
-    entrypoint: /scripts/server.sh
-    # Compiled:
-    #entrypoint: /scripts/server_compiled.sh
-    ports:
-      - "1094:1094"
-    networks:
-      network1:
-        ipv4_address: 10.5.0.5
-    tty: true
+#  server:
+#    container_name: server_minimal-1
+#    # adapt image, if the compiled version should be used!
+#    image: rhofsaess/alma9_v5-7-0_sha1
+#    #environment:
+#      #- XRD_LOGLEVEL=Debug
+#      #- X509_USER_PROXY=/tmp/YOUR-PROXY
+#    volumes:
+#      # ----- Scenario 3: -----
+#      #- type: bind
+#      #  source: /cvmfs/grid.cern.ch/etc/grid-security/
+#      #  target: /etc/grid-security/
+#      #- type: bind
+#      #  source: ./proxy
+#      #  target: /tmp/proxy
+#      # ----- When compiled version should be used -----
+#      #- type: bind
+#      #  source: ./xrootd
+#      #  target: /xrootd
+#      #- type: bind
+#      #  source: ./build
+#      #  target: /build
+#      - type: bind
+#        source: ../configs
+#        target: /xrdconfigs
+#      - type: bind
+#        source: ../scripts
+#        target: /scripts
+#      - type: bind
+#        source: ./store
+#        target: /storage
+#      - type: bind
+#        source: ./logs
+#        target: /logs
+#      #- ../.gitconfig/root/.gitconfig
+#    entrypoint: /scripts/server.sh
+#    # Compiled:
+#    #entrypoint: /scripts/server_compiled.sh
+#    ports:
+#      - "1094:1094"
+#    networks:
+#      network1:
+#        ipv4_address: 10.5.0.5
+#    tty: true
 
   proxy:
     container_name: proxy_compile-1
@@ -55,7 +55,7 @@ services:
         source: /cvmfs/grid.cern.ch/etc/grid-security/certificates
         target: /etc/grid-security/certificates
       - type: bind
-        source: /home/arturgo/cmssw_test/CMSSW_14_1_0_pre4/src/x509up_for_rucio
+        source: /tmp/x509up_u1000
         target: /tmp/YOUR-PROXY
       - type: bind
         source: ../configs
@@ -93,15 +93,15 @@ services:
     image: rhofsaess/alma9_dev_v5-7-0_sha1
     environment:
       - XRD_LOGLEVEL=Debug
-      #- X509_USER_PROXY=/tmp/YOUR-PROXY
+      - X509_USER_PROXY=/tmp/YOUR-PROXY
     volumes:
       # ----- Scenario 3: -----
       #- type: bind
       #  source: /cvmfs/grid.cern.ch/etc/grid-security/certificates
       #  target: /etc/grid-security/certificates
-      #- type: bind
-      #  source: ./proxy
-      #  target: /tmp/YOUR-PROXY
+      - type: bind
+        source: /tmp/x509up_u1000
+        target: /tmp/YOUR-PROXY
       # ----- When compiled version should be used -----
       - type: bind
         source: ./xrootd
