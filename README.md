@@ -4,8 +4,6 @@ Additionally, tools and scripts for optimizing the operation of such (opportunis
 
 The goal is to provide a setup that can run with minimal permissions on most HPC centers!
 
-
-
 # Why Buffer?
 
 
@@ -32,6 +30,13 @@ This directory includes all scripts necessary for automatization of the setup an
 
 # Setup
 
+## Technical Prerequisites
+- apptainer
+- usernamespaces
+- ideally CGroups v2
+- if caching: available storage
+- 
+
 ## Cache
 
 ### Considerations
@@ -40,3 +45,11 @@ This directory includes all scripts necessary for automatization of the setup an
   - gpfs? https://www.ibm.com/docs/en/storage-scale-ece/5.1.8?topic=vdisks-block-size https://www.reddit.com/r/IBM/comments/18iepjz/gpfs_question_on_setting_block_size/
 
 - scratch space per node -> not ideal but possible
+
+
+# Tl;dr
+
+
+## Setup
+
+
