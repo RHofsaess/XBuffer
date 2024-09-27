@@ -1,9 +1,9 @@
 FROM gitlab-registry.cern.ch/linuxsupport/alma9-base:latest
 
 ########################## INFO ###############################
-# Current version: XRootD v5.7.0                              #
-# Image available at: rhofsaess/alma9_5-7-0 or                #
-# rhofsaess/alma9_5-7-0_sha1                                  #
+# Current version: XRootD v5.7.1                              #
+# Image available at: rhofsaess/alma9_5-7-1 or                #
+# rhofsaess/alma9_5-7-1_sha1                                  #
 ###############################################################
 MAINTAINER Robin Hofsaess <Robin.Hofsaess@kit.edu>
 
