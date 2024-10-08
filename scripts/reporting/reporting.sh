@@ -9,5 +9,5 @@
 # filled.                                       #
 #################################################
 source /path/to/venv/bin/activate
-source environment.txt
-./run_checks.sh | python3 push_json_to_opensearch.py
+source /path/to/environment.txt
+/path/to/run_checks.sh | python3 /path/to/push_json_to_opensearch.py
