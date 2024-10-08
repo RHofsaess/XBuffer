@@ -1,0 +1,151 @@
+#!/bin/bash
+#################################################
+# This script is used to regularily check on    #
+# the instance and xrootd caching proxy. If one #
+# of them is not running, the script automati-  #
+# cally restarts the setup. The script is 	    #
+# started from the management node  every 15    #
+# minutes and reports to the new HF4 module.    #
+#	                        					#
+# ++++++++++  Why is it not python? +++++++++++ #
+# After longer discussion, we decided to go 	#
+# with plain bash to achieve a more     		#
+# generaliable setup that works without any 	#
+# further requirements.			            	#
+#################################################
+
+# +++++ THINGS TO ADAPT +++++
+WORKDIR=/path/to/basedir # No relative paths!
+PROXY=x509up_u123456
+STARTSCRIPT=start_XBuffer_instance.sh # start_XBuffer_instance_with_monit.sh
+# +++++++++++++++++++++++++++
+now=$(date +%y%m%d)
+echo "[$(date)]: +++++++ Starting Check +++++++" >> $WORKDIR/logs/reporting/${now}.log
+
+############### VOMS Proxy ###############
+
+voms_exported() {
+    # function to check if X509_USER_PROXY is exported
+    # returns [0:proxy not set, 1:proxy set]
+    echo "[$(date)]: Check X509_USER_PROXY set" >> $WORKDIR/logs/reporting/${now}.log
+    local expected_value="X509_USER_PROXY=/proxy/${PROXY}"
+
+    command_output=$(apptainer exec instance://proxy /bin/bash -c 'task=$(ps aux | grep -v grep | grep xrootd | awk '\''{print $2}'\''); grep -ao "X509_USER_PROXY=/proxy/${PROXY}" /proc/${task}/task/${task}/environ')  # Note: on the host, the pid differs from the container
+
+    # Check if the variable is set and equals the expected value
+    if [ "${command_output}" == "$expected_value" ]; then
+        echo -e "\t${command_output}" >> $WORKDIR/logs/reporting/${now}.log
+	echo "1"
+    else
+        echo -e "\tX509_USER_PROXY not set" >> $WORKDIR/logs/reporting/${now}.log
+	echo "0"
+    fi
+}
+
+voms_remaining() {
+    # function to check remaining time of voms proxy
+    # return the remaining time in seconds
+    echo "[$(date)]: Check remaining time of voms proxy" >> $WORKDIR/logs/reporting/${now}.log
+    command_output=$(apptainer exec instance://proxy /bin/bash -c '/usr/bin/voms-proxy-info --file /proxy/${PROXY} | grep timeleft | awk '\''{print $3}'\')
+    echo -e "\tTime left: ${command_output}" >> $WORKDIR/logs/reporting/${now}.log
+    IFS=":" read -r hours minutes seconds <<< "${command_output}"
+
+    hours=$((10#$hours))
+    minutes=$((10#$minutes))
+    seconds=$((10#$seconds))
+    total_seconds=$((hours * 3600 + minutes * 60 + seconds))
+
+    echo $total_seconds
+}
+
+############### Instance and Cache ###############
+
+instance_running() {
+    # function to check, if the instance is running
+    # CURRENTLY, THE ASSUMPTION IS THAT ONLY ONE INSTANCE IS RUNNING!!!
+    # returns 0:not running, 1:running, 2: status "restarted"
+    # NOTE: It can be that the caching proxy died but the instance is still running! Therefore, the second check
+    echo "[$(date)]: Check, if apptainer instance is running:" >> $WORKDIR/logs/reporting/${now}.log
+
+    # first check, if an instance is running:
+    instance=$(apptainer instance list | awk 'NR>1 {print $1}')
+    if [ -z "${instance}" ]; then
+        echo -e "\tNo instance found!" >> $WORKDIR/logs/reporting/${now}.log
+        # self-healing mechanism:
+        echo -e "\t[$(date)]: Restarting instance and proxy..." >> $WORKDIR/logs/reporting/${now}.log
+        nohup $WORKDIR/scripts/${STARTSCRIPT} >> $WORKDIR/logs/reporting/${now}.log 2>&1 &
+	sleep 8  # wait for the instance to come up
+
+        instance_restarted=$(apptainer instance list | awk 'NR>1 {print $1}')
+        if [ -n "${instance_restarted}" ]; then
+            echo -e "\t[$(date)]: Instance successfully restarted!" >> $WORKDIR/logs/reporting/${now}.log
+            echo "2"
+        else
+            echo -e "\t[ERROR]: Instance restart failed!" >> $WORKDIR/logs/reporting/${now}.log
+            echo "0"
+        fi
+    else
+        command_output=$(apptainer exec instance://proxy /bin/bash -c 'ps aux | grep -v grep | grep xrootd')  # check, if caching proxy is running
+        if [ -n "${command_output}" ]; then
+            echo -e "\tInstance '${instance}' and proxy '${command_output}' running." >> $WORKDIR/logs/reporting/${now}.log
+            echo "1"
+        else
+            echo -e "\t[ERROR] Instance '${instance}' running, but no caching proxy found!" >> $WORKDIR/logs/reporting/${now}.log
+	    echo -e "\t[$(date)]: Restarting instance and proxy..." >> $WORKDIR/logs/reporting/${now}.log
+	    nohup ../${STARTSCRIPT} >> $WORKDIR/logs/reporting/${now}.log 2>&1 &
+	    sleep 8  # wait for the instance to come up
+
+            instance_restarted=$(apptainer instance list | awk 'NR>1 {print $1}')
+		if [ -n "${instance_restarted}" ]; then
+		    echo -e "\t[$(date)]: Instance successfully restarted!" >> $WORKDIR/logs/reporting/${now}.log
+		    echo "2"
+		else
+		    echo -e "\t[ERROR]: Instance restart failed!" >> $WORKDIR/logs/reporting/${now}.log
+		    echo "0"
+		fi
+        fi
+    fi
+}
+
+############### Fil state of Cache ###############
+get_fill_state() {
+    # NOTE: +++++ THIS NEEDS TO BE CHANGED IN FUTURE XROOTD VERSIONS +++++
+    # Function to query the current estimated cache fill state from the proxy log.
+    # Requires pfc logging to be enabled
+    # returns the fillstate in TB
+    echo "[$(date)]: Checking cache fill State:" >> $WORKDIR/logs/reporting/${now}.log 
+    command_output=$(apptainer exec instance://proxy /bin/bash -c ' grep "estimated usage by files" /logs/proxy.log | tail -1 | awk '\''{print $11}'\')
+    echo -e "\tEstimated usage by files: ${command_output} bytes" >> $WORKDIR/logs/reporting/${now}.log
+    echo "${command_output}"
+}
+
+
+############### Future Extensions ###############
+# - mode
+# - running nodes
+# - next node starting
+# - slurm job ids
+
+
+# -------------------------------------------------------------
+
+# test1: instance running
+test1=$(instance_running)
+# test2: check if proxy is valid; returns remaining hours
+test2=$(voms_remaining)
+# test3: check if env variable is set
+test3=$(voms_exported)
+# test4: get fill state of cache
+test4=$(get_fill_state)
+
+# Format the output:
+json_output="{"
+json_output+="\"instance_running\": \"$test1\","
+json_output+="\"voms_remaining_s\": \"$test2\","
+json_output+="\"voms_exported\": \"$test3\","
+json_output+="\"cache_fill_state_b\": \"$test4\""
+
+json_output+="}"
+
+echo $json_output
+

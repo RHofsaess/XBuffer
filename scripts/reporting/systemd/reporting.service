@@ -1,0 +1,7 @@
+[Unit]
+Description=Service for regularly checking the status and pushing to opensearch
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/reporting.sh
+WorkingDirectory=/path/to/working/directory
