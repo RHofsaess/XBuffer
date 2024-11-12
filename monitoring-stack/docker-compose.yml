@@ -1,4 +1,7 @@
 services:
+# ########## OpenSearch ##########
+# OpenSearch is used for the cache status monitoring
+# From the caching proxy node, all info is gathered and pushed as json to OS
   opensearch: # This is also the hostname of the container within the Docker network (i.e. https://opensearch/)
     image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
     container_name: opensearch
@@ -9,7 +12,7 @@ services:
       - cluster.initial_cluster_manager_nodes=opensearch # Nodes eligible to serve as cluster manager
       - bootstrap.memory_lock=true # Disable JVM heap memory swapping
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=<PASSWORD>  # Sets the demo admin user password when using demo configuration, required for OpenSearch 2.12 and later
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}  # Sets the demo admin user password when using demo configuration, required for OpenSearch 2.12 and later
       - plugins.security.disabled=false
     ulimits:
       memlock:
@@ -20,13 +23,14 @@ services:
         hard: 65536
     volumes:
       - type: bind
-        source: ./data/OS
+        source: ./DB/OS
         target: /usr/share/opensearch/data # Creates volume called opensearch-data1 and mounts it to the container
     ports:
       - 9200:9200 # REST API
       - 9600:9600 # Performance Analyzer
     networks:
-      - opensearch-net
+      monit-net:
+        ipv4_address: 192.168.101.102
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:latest # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
@@ -38,11 +42,109 @@ services:
     environment:
       OPENSEARCH_HOSTS: '["https://opensearch:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
     networks:
-      - opensearch-net
+       monit-net:
+        ipv4_address: 192.168.101.103
+
+# ########## InfluxDB ##########
+# Influx is used for the xrootd summary monitoring
+# and optionally, for the redirector and the ifnop I/O monit
+  influxdb:
+    container_name: influxdb
+    image: influxdb:latest
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${DOCKER_INFLUXDB_INIT_USERNAME}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${DOCKER_INFLUXDB_INIT_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${DOCKER_INFLUXDB_INIT_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${DOCKER_INFLUXDB_INIT_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+    volumes:
+      - type: bind
+        source: ./DB/influx/data
+        target: /var/lib/influxdb2
+    ports:
+      - "8086:8086"
+    networks:
+      monit-net:
+        ipv4_address: 192.168.101.104
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /logs
+    entrypoint: ["/bin/sh", "-c", "/run.sh &> /logs/grafana.log"] # with additional logging
+    ports:
+      - "3000:3000"
+    networks:
+      monit-net:
+        ipv4_address: 192.168.101.105
+    depends_on: 
+      - influxdb
+
+########## OPTIONAL ##########
+# This container is used to run the script reading the xrd UPD stream and pushing to influx
+  monit-cache:
+    container_name: xrd-summary-monit
+    image: rhofsaess/alma9_proxy_monit
+    environment:
+      INFLUXDB_URL: ${INFLUXDB_URL}
+      INFLUXDB_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      MEASUREMENT: "HoreKa-cache"
+      TAG_LIST: 'pgm, ver, src'
+      DEBUG: 1
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /logs
+      - type: bind
+        source: ./scripts
+        target: /scripts
+    entrypoint: /scripts/monit-cache.sh
+    ports:
+      - "9931:9931/udp"
+    networks:
+      monit-net:
+        ipv4_address: 192.168.101.106
+
+# Summary monitoring for gridka test redirector
+# Analog: collecting UPD stream and pushing to influx
+  monit-redirector:
+    container_name: xrd-redirector-monit
+    image: rhofsaess/alma9_proxy_monit
+    environment:
+      INFLUXDB_URL: ${INFLUXDB_URL}
+      INFLUXDB_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      MEASUREMENT: "GridKa-Redirector"
+      TAG_LIST: 'pgm, ver, src'
+      DEBUG: 1
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /logs
+      - type: bind
+        source: ./scripts
+        target: /scripts
+    entrypoint: /scripts/monit-redirector.sh
+    ports:
+      - "9930:9930/udp"
+    networks:
+      monit-net:
+        ipv4_address: 192.168.101.107
+ ##############################
 
 networks:
-  opensearch-net:
+  monit-net:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.100.0/24
+        - subnet: 192.168.101.0/24
+          gateway: 192.168.101.1
