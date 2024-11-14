@@ -1,0 +1,5 @@
+export os_host=my-machine.kit.edu
+export os_port=9200
+export user=my-os-user
+export password=my-password
+export index=my-proy-$(date +%m)

@@ -1,5 +1,5 @@
-host=
-port=
-user=
-password=
-index=
+export os_host=
+export os_port=
+export user=
+export password=
+export index=
