@@ -1,0 +1,16 @@
+PUT /your_index_name
+{
+  "mappings": {
+    "properties": {
+      "timestamp": { "type": "date" },
+      "hostname": { "type": "keyword" },
+      "instance_running": { "type": "integer" },
+      "voms_remaining_s": { "type": "long" },
+      "voms_exported": { "type": "integer" },
+      "cache_fill_state_b": { "type": "long" },
+      "next_start": { "type": "date" },
+      "n_nodes": { "type": "integer" },
+      "monit_running": { "type": "integer" }
+    }
+  }
+}
