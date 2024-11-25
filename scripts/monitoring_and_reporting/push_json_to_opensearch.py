@@ -7,17 +7,17 @@ from logging.handlers import RotatingFileHandler
 
 from opensearchpy import OpenSearch
 
-host = os.getenv('os_host')  #'localhost'
-port = os.getenv('os_port')  # 9200
-auth = (os.getenv('user'), os.getenv('password')) 
-index_name = os.getenv('index')
+OS_HOST = os.getenv('OS_HOST')  #'localhost'
+OS_PORT = os.getenv('OS_PORT')  # 9200
+OS_AUTH = (os.getenv('OS_USER'), os.getenv('OS_PASSWORD')) 
+OS_INDEX = os.getenv('OS_INDEX')
 
 # ########## LOGGING ##########
 # Create a custom logger
 logger = logging.getLogger(__name__)
 
 # Set the global logging level
-logger.setLevel(logging.DEBUG)  # This can be adjusted to INFO, WARNING, etc.
+logger.setLevel(logging.INFO)  # This can be adjusted to INFO, WARNING, etc.
 
 # Create handlers
 console_handler = logging.StreamHandler()
@@ -49,13 +49,13 @@ logger.addHandler(file_handler)
 # ########## CONNECTION ##########
 try:
     client = OpenSearch(
-        hosts=[{'host': host, 'port': port}],
-        http_auth=auth,
+        hosts=[{'host': OS_HOST, 'port': OS_PORT}],
+        http_auth=OS_AUTH,
         use_ssl=True,
         verify_certs=False,
         ssl_show_warn=False
     )
-    logger.info('Connected to OpenSearch cluster')
+    logger.info('Connected to OpenSearch cluster.')
 except Exception as e:
     logger.error(f'Error connecting to OpenSearch: {e}')
     exit(1)
@@ -74,7 +74,7 @@ except json.JSONDecodeError as e:
 # Indexing the data
 try:
     response = client.index(
-        index=index_name,
+        index=OS_INDEX,
         body=data,
         refresh=True
     )

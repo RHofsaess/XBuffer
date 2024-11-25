@@ -9,16 +9,16 @@ from logging.handlers import RotatingFileHandler
 from opensearchpy import OpenSearch
 
 ##################################
-host = os.getenv('os_host')  #'localhost'
-port = os.getenv('os_port')  # 9200
-auth = (os.getenv('user'), os.getenv('password')) 
-index_name = os.getenv('index')
+OS_HOST = os.getenv('OS_HOST')  #'localhost'
+OS_PORT = os.getenv('OS_PORT')  # 9200
+OS_AUTH = (os.getenv('OS_USER'), os.getenv('OS_PASSWORD')) 
+OS_INDEX = os.getenv('OS_INDEX')
 ##################################
-MATTERMOST_URL = 'https://your.mattermost.url/'  # +++++ ATTENTION +++++: only works with python > 3.6.8
-ACCESS_TOKEN = '<BOT Access Token>'
-TEAM_ID = '<Team ID>'  # can be found with: curl -H
-CHANNEL_ID = '<Channel ID>'  # analog:
-CHANNEL = '<Channel name>'  # only for logging
+MM_URL = os.getenv('MM_URL')  # +++++ ATTENTION +++++: only works with python > 3.6.8
+MM_ACCESS_TOKEN = os.getenv('MM_ACCESS_TOKEN')
+MM_TEAM_ID = os.getenv('MM_TEAM_ID')  # can be found with: the api -- see README
+MM_CHANNEL_ID = os.getenv('MM_CHANNEL_ID')  # analog
+MM_CHANNEL = os.getenv('MM_CHANNEL')  # only for logging
 ##################################
 
 # ########## Mattermost ##########
@@ -45,16 +45,16 @@ def send_message(logger: logging.Logger, message: str) -> None:
             'Content-Type': 'application/json'
     }
     data = {
-            'channel_id': CHANNEL_ID,
-            'team_id' : TEAM_ID,
+            'channel_id': MM_CHANNEL_ID,
+            'team_id' : MM_TEAM_ID,
             'message': message
     }
     logger.debug(f'[MMBot] Data: {data}')
 
     try:
         response = requests.post(
-                #f'{MATTERMOST_URL}/api/v4/posts',  # +++++ ATTENTION +++++: only works with python > 3.6.8
-                'https://mattermost.etp.kit.edu/api/v4/posts',
+                #f'{MM_URL}/api/v4/posts',  # +++++ ATTENTION +++++: only works with python > 3.6.8
+                'https://your.mattermost.url/api/v4/posts',
                 headers=headers,
                 json=data
         )
@@ -112,7 +112,7 @@ file_handler = RotatingFileHandler(
 )
 
 # Set level for handlers
-console_handler.setLevel(logging.DEBUG)
+console_handler.setLevel(logging.INFO)
 file_handler.setLevel(logging.DEBUG)
 
 # Create formatters and add them to the handlers
@@ -133,13 +133,13 @@ logger.addHandler(file_handler)
 # ########## CONNECTION ##########
 try:
     client = OpenSearch(
-        hosts=[{'host': host, 'port': port}],
-        http_auth=auth,
+        hosts=[{'host': OS_HOST, 'port': OS_PORT}],
+        http_auth=OS_AUTH,
         use_ssl=True,
         verify_certs=False,
         ssl_show_warn=False
     )
-    logger.info('Connected to OpenSearch cluster')
+    logger.info('Connected to OpenSearch cluster.')
 except Exception as e:
     logger.error(f'Error connecting to OpenSearch: {e}')
     exit(1)
@@ -150,7 +150,7 @@ input_data = sys.stdin.read()
 try:
     data = json.loads(input_data)
     logger.debug(f'Recieved input data: {data}')
-    send_message(logger, prepare_report(data))
+    send_message(logger, prepare_report(data))  # send MM message
 except json.JSONDecodeError as e:
     logger.error(f'Failed to parse JSON data: {e}')
     exit(1)
@@ -159,7 +159,7 @@ except json.JSONDecodeError as e:
 # Indexing the data
 try:
     response = client.index(
-        index=index_name,
+        index=OS_INDEX,
         body=data,
         refresh=True
     )

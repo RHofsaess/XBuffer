@@ -1,5 +1,17 @@
-export os_host=
-export os_port=
-export user=
-export password=
-export index=
+#############################
+# OpenSearch Config
+#############################
+export OS_HOST=
+export OS_PORT=
+export OS_USER=
+export OS_PASSWORD=
+export OS_INDEX=
+
+#############################
+# Optional: Mattermost Config
+#############################
+# export MM_URL=
+# export MM_ACCESS_TOKEN=
+# export MM_TEAM_ID=
+# export MM_CHANNEL_ID=
+# export MM_CHANNEL=

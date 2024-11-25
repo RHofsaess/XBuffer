@@ -1,5 +1,17 @@
-export os_host=my-machine.kit.edu
-export os_port=9200
-export user=my-os-user
-export password=my-password
-export index=my-proy-$(date +%m)
+#############################
+# OpenSearch Config
+#############################
+export OS_HOST=my-machine.kit.edu
+export OS_PORT=9200
+export OS_USER=my-os-user
+export OS_PASSWORD=my-password
+export OS_INDEX=my-proy-$(date +%m)
+
+#############################
+# Optional: Mattermost Config
+#############################
+# export MM_URL=https://your.mattermost.url
+# export MM_ACCESS_TOKEN=<your Bot Token>
+# export MM_TEAM_ID=<your Team ID>
+# export MM_CHANNEL_ID=<your Channel ID>
+# export MM_CHANNEL=<name of Channel>
