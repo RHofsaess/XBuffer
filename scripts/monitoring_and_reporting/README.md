@@ -31,6 +31,7 @@ Several ways to set up the reporting are available.
 1) Create a python venv: `$ python3 -m venv venv` and `pip install opensearch-py` into it.
 2) Adapt the files. The `reporting.sh` is just a wrapper for the check script. You need to adapt the paths, also in the systemd units, and the `run_checks.sh` to your needs.
 3) +++++ OPTIONAL +++++ Push an index mapping manually to OS to ensure data types.
+3) +++++ OPTIONAL +++++ Create a mattermost bot and adapt the scripts to use `push_json_to_opensearch_with_mm.py` and add the required config keys to the file.
 3) Copy the units to: `~/.config/systemd/user/`
 4) Reload: `$ systemctl --user daemon-reload`
 5) Enable the timer: `$ systemctl --user enable --now reporting.timer`
