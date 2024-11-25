@@ -63,9 +63,9 @@ except Exception as e:
 
 # ########## GET DATA ##########
 input_data = sys.stdin.read()
-print(input_data)
 try:
     data = json.loads(input_data)
+    logger.debug(f'Recieved input data: {data}')
 except json.JSONDecodeError as e:
     logger.error(f'Failed to parse JSON data: {e}')
     exit(1)
@@ -82,9 +82,6 @@ try:
     logger.debug(f'Indexing response: {response}')
 except Exception as e:
     logger.error(f'An error occurred while indexing the document: {e}')
-
-
-
 
 """
 # Index settings and mappings
