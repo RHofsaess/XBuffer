@@ -13,12 +13,15 @@ If `systemctl --user` is available, this way should be prefered, as it avoids pr
 
 # Overview
 - `environment.txt`: Includes the env variables the push script is reading.
+- `environment.txt.example`: Example with more description.
 - `init_index.txt`: Command for manually setting up an index in OS, including a fixed data type mapping. Can be used with curl/requests or from within the OS dev console. +++++ MAY NEEDS TO BE ADAPTED!! +++++
 - `monit-cache.sh`: mpxstats summary monitoring for XRootD caching proxy.
 - `monit-redirector.sh`: mpxstats summary monitoring for XRootD redirector.
 - `push_json_to_opensearch.py`: The scripts reads the necessary env variables and a json from stdin and pushes it to OS. Usage: `$ source environment.txt && script_returning_json.sh | python push.py`
+- `push_json_to_opensearch_with_mm.py`: Analog, but wth Mattermost alerting.
 - `push_json_to_opensearch_manually.py`: Script for testing the OS connectivity. Can be used for initial index creation.
 - `reporting.sh`: It sources the venv, exports the `environment.txt` to be accessible for the push script, runs the checks and optionally pushes the data to OS.
+- `reporting_with_mm.sh`: It sources the venv, exports the `environment.txt` to be accessible for the push script, runs the checks pushes the data to OS and optionally sends mattermost alerts.
 - `run_checks.sh`: This script runs all checks and returns a json as a string. This can be read-in by a push script. Everything is also logged to `logs/reporting`.
 - `./systemd`: folder containing the user units for automatization.
 - `xrootd_influx_exporter.py`: Script for listening to UPD, digesting the xml of the xrd summary monitoring, and pushing it to influxDB.
@@ -27,15 +30,28 @@ If `systemctl --user` is available, this way should be prefered, as it avoids pr
 # Setup
 Several ways to set up the reporting are available.
 
-## OpenSearch (`systemd`-based)
+## General
 1) Create a python venv: `$ python3 -m venv venv` and `pip install opensearch-py` into it.
-2) Adapt the files. The `reporting.sh` is just a wrapper for the check script. You need to adapt the paths, also in the systemd units, and the `run_checks.sh` to your needs.
+2) Adapt the `environment.txt`: Add OpenSearch and (optionally) Mattermost configs. An example is given.
+
+## Mattermost Alert Bot
+1) Create a bot in mattermost and give him for the beginning `system administrator` permissions (NOTE: This SHOULD BE CHANGED later!)
+2) Get the bot's access token.
+3) Verify the bot to be working: `$ curl -i -H 'authorization: Bearer <your token>' https://your.mattermost.com/api/v4/users/me`.
+4) Query team and channel IDs: `$ curl -i -H 'authorization: Bearer <your token>' https://your.mattermost.com/api/v4/channels` or `teams` instead of `channels`.
+NOTE: This only works with admin permissions. It can also be that the desired channel is on a different page. Then, add to the query: `.../v4/channels?page=1,2,3,4,...`, until you find the correct one.
+5) Add alerts as you wish (according to the output of `run_checks.sh`) to the `prepare_report` function.
+6) Adapt the scripts, units etc to correctly use `push_json_to_opensearch_with_mm.py` and add the required config keys to the environment.
+7) Change the permissions of the bot to `Member` with the `post:all` permission set.
+
+## OpenSearch (`systemd`-based)
+1) Adapt the files. The `reporting_*.sh` is just a wrapper for the check script. You need to adapt the paths, also in the systemd units.
+2) Add checks to `run_checks.sh` adapted to your needs. The script returns the check results as a json string.
 3) +++++ OPTIONAL +++++ Push an index mapping manually to OS to ensure data types.
-3) +++++ OPTIONAL +++++ Create a mattermost bot and adapt the scripts to use `push_json_to_opensearch_with_mm.py` and add the required config keys to the file.
-3) Copy the units to: `~/.config/systemd/user/`
-4) Reload: `$ systemctl --user daemon-reload`
-5) Enable the timer: `$ systemctl --user enable --now reporting.timer`
-6) Verify: `$ systemctl --user status reporting.timer` or `$ journalctl --user-unit reporting.service`
+4) Copy the units to: `~/.config/systemd/user/`.
+5) Reload: `$ systemctl --user daemon-reload`.
+6) Enable the timer: `$ systemctl --user enable --now reporting.timer`.
+7) Verify: `$ systemctl --user status reporting.timer` or `$ journalctl --user-unit reporting.service`.
 
 ### Setting Up the Data
 
@@ -49,4 +65,3 @@ TODO
 
 
 # TODO
-- provide xrd push scripts to OpenSearch
