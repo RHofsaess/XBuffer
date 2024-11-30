@@ -67,7 +67,15 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Docker Image
-        if: steps.compare-version.outcome == 'failure'
+        if: env.UPDATE == 'True'
         run: |
           docker push rhofsaess/alma9_${{ env.XROOTD_VERSION }}
 
+      - name: Commit and Push Changes
+        if: env.UPDATE == 'True'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add current_version.txt
+          git commit -m "Update current_version.txt to $(cat latest_version.txt)"
+          git push origin HEAD
