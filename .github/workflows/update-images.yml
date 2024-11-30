@@ -46,9 +46,9 @@ jobs:
         if: env.UPDATE == 'True'
         run: |
           docker build \
-            -f ./images/alma9/Dockerfile
+            -f ./images/alma9/Dockerfile \
             --build-arg XROOTD_VERSION=${{ env.XROOTD_VERSION }} \
-            -t rhofsaess/alma9_${{ env.XROOTD_VERSION }} ./images/alma9
+            -t rhofsaess/alma9_${{ env.XROOTD_VERSION }} .
 
       - name: Log in to Docker Hub
         if: env.UPDATE == 'True'
