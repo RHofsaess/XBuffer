@@ -19,7 +19,7 @@ jobs:
         id: get-version
         run: |
           curl -s https://api.github.com/repos/xrootd/xrootd/releases/latest | jq -r '.tag_name' > latest_version.txt
-          echo "::set-output name=version::$(cat latest_version.txt)"
+          XROOTD_VERSION=$(cat latest_version.txt | sed 's/^v//')
           echo "Latest XRootD version is: $(cat latest_version.txt)"
           echo "XROOTD_VERSION=$(cat latest_version.txt | sed 's/^v//')" >> $GITHUB_ENV
 
@@ -32,9 +32,11 @@ jobs:
               exit 0
             else
               echo "New XRootD version available: $(cat latest_version.txt)"
+              exit 1
             fi
           else
             echo "No current version found. Latest version is: $(cat latest_version.txt)"
+            exit 1
           fi
 
       - name: Save the new version
