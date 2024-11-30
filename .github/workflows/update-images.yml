@@ -42,13 +42,22 @@ jobs:
         if: env.UPDATE == 'True'
         run: cp latest_version.txt current_version.txt
 
-      - name: Build Docker Image
+      - name: Build Docker Production Image
         if: env.UPDATE == 'True'
         run: |
           docker build \
             -f ./images/alma9/Dockerfile \
             --build-arg XROOTD_VERSION=${{ env.XROOTD_VERSION }} \
             -t rhofsaess/alma9_${{ env.XROOTD_VERSION }} .
+
+      - name: Build Docker Development Image
+        if: env.UPDATE == 'True'
+        run: |
+          docker build \
+            -f ./images/alma9_dev/Dockerfile \
+            --build-arg XROOTD_VERSION=${{ env.XROOTD_VERSION }} \
+            -t rhofsaess/alma9_dev_${{ env.XROOTD_VERSION }} .
+
 
       - name: Log in to Docker Hub
         if: env.UPDATE == 'True'

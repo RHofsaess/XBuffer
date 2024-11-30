@@ -1,11 +1,13 @@
 FROM gitlab-registry.cern.ch/linuxsupport/alma9-base
 
 ########################## INFO ###############################
-# Current version: XRootD v5.7.1                              #
-# Image available at: rhofsaess/alma9_dev_5-7-1 or            #
-# rhofsaess/alma9_dev_5-7-1_sha1                              #
+# Image available at: rhofsaess/alma9_dev_<VERSION>           #
+# NOTE: SHA1 is enabled for now                               #
 ###############################################################
 MAINTAINER Robin Hofsaess <Robin.Hofsaess@kit.edu>
+
+ARG XROOTD_VERSION
+RUN echo "Build image for v${XROOTD_VERSION}"
 
 RUN dnf -y update && dnf -y clean all
 
@@ -15,8 +17,8 @@ RUN dnf config-manager --set-enabled crb
 RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 
 # Workaround for old dcache doors
-#RUN dnf -y install crypto-policies-scripts
-#RUN update-crypto-policies --set DEFAULT:SHA1
+RUN dnf -y install crypto-policies-scripts
+RUN update-crypto-policies --set DEFAULT:SHA1
 
 # add packages
 RUN  dnf install -y expect \
