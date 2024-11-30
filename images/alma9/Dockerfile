@@ -1,11 +1,12 @@
 FROM gitlab-registry.cern.ch/linuxsupport/alma9-base:latest
 
 ########################## INFO ###############################
-# Current version: XRootD v5.7.1                              #
-# Image available at: rhofsaess/alma9_5-7-1 or                #
-# rhofsaess/alma9_5-7-1_sha1                                  #
+# Image available at: rhofsaess/alma9_<VERSION>               #
+# NOTE: SHA1 is enabled for now                               #
 ###############################################################
 MAINTAINER Robin Hofsaess <Robin.Hofsaess@kit.edu>
+
+ARG XROOTD_VERSION
 
 RUN dnf -y update && dnf -y clean all
 
@@ -18,21 +19,23 @@ RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.n
 RUN curl -L https://cern.ch/xrootd/xrootd.repo -o /etc/yum.repos.d/xrootd.repo
 
 # Workaround for old dcache doors
-#RUN dnf -y install crypto-policies-scripts
-#RUN update-crypto-policies --set DEFAULT:SHA1
+RUN dnf -y install crypto-policies-scripts
+RUN update-crypto-policies --set DEFAULT:SHA1
 
 # install xrootd with all additions
-RUN dnf -y install --enablerepo=xrootd-stable\
-        xrootd-client xrootd-client-devel xrootd-client-libs \
-        xrootd-server xrootd-server-devel xrootd-server-libs \
-        xrootd-devel \
+RUN dnf -y install --enablerepo=xrootd-stable \
+        xrootd-client-${XROOTD_VERSION} xrootd-client-devel-${XROOTD_VERSION} xrootd-client-libs-${XROOTD_VERSION} \
+        xrootd-server-${XROOTD_VERSION} xrootd-server-devel-${XROOTD_VERSION} xrootd-server-libs-${XROOTD_VERSION} \
+        xrootd-devel-${XROOTD_VERSION} \
         xrootd-doc \
-        xrootd-fuse \
-        xrootd-libs \
-        xrootd-private-devel \
-        xrootd-scitokens \
-        xrootd-voms \
-        python3-xrootd
+        xrootd-fuse-${XROOTD_VERSION} \
+        xrootd-libs-${XROOTD_VERSION} \
+        xrootd-private-devel-${XROOTD_VERSION} \
+        xrootd-scitokens-${XROOTD_VERSION} \
+        xrootd-voms-${XROOTD_VERSION} \
+        python3-xrootd-${XROOTD_VERSION}
+
+# ########## Optional ##########
 
 # Python
 RUN dnf install -y python3-devel \
