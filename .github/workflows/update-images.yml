@@ -1,4 +1,4 @@
-name: Rebuild Image For New XRootD Release
+name: Rebuild Images For New XRootD Release
 
 on:
   schedule:
@@ -66,8 +66,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-#      - name: Push Docker Image
-#        if: steps.compare-version.outcome == 'failure'
-#        run: |
-#          docker push rhofsaess/alma9_${{ env.XROOTD_VERSION }}
+      - name: Push Docker Image
+        if: steps.compare-version.outcome == 'failure'
+        run: |
+          docker push rhofsaess/alma9_${{ env.XROOTD_VERSION }}
 
