@@ -1,0 +1,38 @@
+name: Rebuild Docker on XRootD Release
+
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Weekly check
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  check-xrootd:
+    runs-on: self-hosted
+    container:
+      image: gitlab-registry.cern.ch/linuxsupport/alma9-base:latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Get latest XRootD version
+        id: get-version
+        run: |
+          curl -s https://api.github.com/repos/xrootd/xrootd/releases/latest | jq -r '.tag_name' > latest_version.txt
+          echo "::set-output name=version::$(cat latest_version.txt)"
+          echo "Latest XRootD version is: $(cat latest_version.txt)"
+
+      - name: Compare with current version
+        run: |
+          if [ -f current_version.txt ]; then
+            if diff current_version.txt latest_version.txt > /dev/null; then
+              echo "XRootD version is up to date: $(cat current_version.txt)"
+              exit 0
+            else
+              echo "New XRootD version available: $(cat latest_version.txt)"
+            fi
+          else
+            echo "No current version found. Latest version is: $(cat latest_version.txt)"
+          fi
+        continue-on-error: true
+
