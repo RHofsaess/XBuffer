@@ -8,8 +8,6 @@ on:
 jobs:
   check-xrootd:
     runs-on: self-hosted
-    container:
-      image: gitlab-registry.cern.ch/linuxsupport/alma9-base:latest
 
     steps:
       - name: Check out repository
