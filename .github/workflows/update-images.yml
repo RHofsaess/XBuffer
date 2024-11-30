@@ -29,29 +29,30 @@ jobs:
           if [ -f current_version.txt ]; then
             if diff current_version.txt latest_version.txt > /dev/null; then
               echo "XRootD version is up to date: $(cat current_version.txt)"
+              echo "UPDATE=False" >> $GITHUB_ENV
               exit 0
             else
               echo "New XRootD version available: $(cat latest_version.txt)"
-              exit 1
+              echo "UPDATE=True" >> $GITHUB_ENV
             fi
           else
             echo "No current version found. Latest version is: $(cat latest_version.txt)"
-            exit 1
+            echo "UPDATE=True" >> $GITHUB_ENV
           fi
 
       - name: Save the new version
-        if: steps.compare-version.outcome == 'failure'
+        if: env.UPDATE == 'True'
         run: cp latest_version.txt current_version.txt
 
       - name: Build Docker Image
-        if: steps.compare-version.outcome == 'failure'
+        if: env.UPDATE == 'True'
         run: |
           docker build \
             --build-arg XROOTD_VERSION=${{ env.XROOTD_VERSION }} \
             -t rhofsaess/alma9_${{ env.XROOTD_VERSION }} .
 
       - name: Log in to Docker Hub
-        if: steps.compare-version.outcome == 'failure'
+        if: env.UPDATE == 'True'
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
