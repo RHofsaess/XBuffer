@@ -66,10 +66,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker Image
+      - name: Push Docker Production Image
         if: env.UPDATE == 'True'
         run: |
           docker push rhofsaess/alma9_${{ env.XROOTD_VERSION }}
+
+      - name: Push Docker Development Image
+        if: env.UPDATE == 'True'
+        run: |
+          docker push rhofsaess/alma9_dev_${{ env.XROOTD_VERSION }}
 
       - name: Commit and Push Changes
         if: env.UPDATE == 'True'
