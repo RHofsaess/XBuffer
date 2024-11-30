@@ -46,6 +46,7 @@ jobs:
         if: env.UPDATE == 'True'
         run: |
           docker build \
+            -f ./images/alma9/Dockerfile
             --build-arg XROOTD_VERSION=${{ env.XROOTD_VERSION }} \
             -t rhofsaess/alma9_${{ env.XROOTD_VERSION }} .
 
