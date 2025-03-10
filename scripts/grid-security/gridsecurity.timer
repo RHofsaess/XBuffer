@@ -1,0 +1,10 @@
+[Unit]
+Description=Update grid-security every 24h
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

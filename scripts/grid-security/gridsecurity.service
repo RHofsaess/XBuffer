@@ -1,0 +1,11 @@
+[Unit]
+Description=Updated grid-security via CVMFSEXEC
+
+[Service]
+Type=simple
+ExecStart=<TO_BE_REPLACED>
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+

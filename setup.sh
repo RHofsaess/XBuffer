@@ -21,6 +21,20 @@ chmod -R 777 $BASEDIR/logs
 touch $BASEDIR/logs/main.log
 echo "[$(date)]: Directories created..." >> $BASEDIR/logs/main.log
 
+# Get cvmfsexec
+echo "[$(date)]: Get cvmfsexec and do initial setup..." >> $BASEDIR/logs/main.log
+# This is required for updating /etc/grid-security
+git clone https://github.com/cvmfs/cvmfsexec.git
+cd ./cvmfsexec
+./makedist -s osg
+
+# Setup automated update service for /etc/grid-security
+sed -i "s|^ExecStart=.*|ExecStart=${BASEDIR}/scripts/grid-security/setup_cvmfs.sh|" $BASEDIR/scripts/grid-security/gridsecurity.service
+
+# Enable timer
+systemctl --user daemon-reload
+systemctl --user enable $BASEDIR/scripts/grid-security/gridsecurity.timer
+
 # Get monitoring tool
 echo "[$(date)]: Cloning ifnop..." >> $BASEDIR/logs/main.log
 git clone https://github.com/RHofsaess/ifnop.git >> $BASEDIR/logs/main.log
