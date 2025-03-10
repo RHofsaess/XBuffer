@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################
 # This script stops an instance garcefully and  #
-# writes it to the main log. 			#
+# writes it to the main log. 			        #
 #################################################
 source ../.env
 

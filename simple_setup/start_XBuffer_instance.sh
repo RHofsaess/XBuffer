@@ -57,6 +57,7 @@ fi
 # Start the instance and run the caching proxy
 if [[ "$ENABLE_CACHE" -eq 1 ]]; then
     apptainer instance start --bind $CACHE:/cache,$BASEDIR/proxy/:/proxy,$BASEDIR/configs:/xrdconfigs,$BASEDIR/cvmfs-grid-certs/grid-security:/etc/grid-security,$BASEDIR/logs:/logs,$BASEDIR/scripts:/scripts docker://${IMAGE} $INSTANCE
+    # +++++ TODO: add path to proxy +++++
     apptainer exec instance://proxy /bin/bash -c 'export X509_USER_PROXY=/proxy/<YOUR-PROXY>; xrootd -c /xrdconfigs/xrootd_caching_server-simple.cfg -l /logs/proxy.log' &
     if [[ $? -eq 0 ]]; then
         echo "[$(date)]: Instance with caching started successfully." | tee -a $LOGDIR/main.log
@@ -65,6 +66,7 @@ if [[ "$ENABLE_CACHE" -eq 1 ]]; then
 	exit 1
     fi
 else
+    # +++++ TODO: add path to proxy +++++
     apptainer instance start --bind $BASEDIR/proxy/:/proxy,$BASEDIR/configs:/xrdconfigs,$BASEDIR/cvmfs-grid-certs/grid-security:/etc/grid-security,$BASEDIR/logs:/logs,$BASEDIR/scripts:/scripts docker://${IMAGE} $INSTANCE
     apptainer exec instance://proxy /bin/bash -c 'export X509_USER_PROXY=/proxy/<YOUR-PROXY>; xrootd -c /xrdconfigs/xrootd_proxy_server-simple.cfg -l /logs/proxy.log' &
     if [[ $? -eq 0 ]]; then

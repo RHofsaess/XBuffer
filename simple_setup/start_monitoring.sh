@@ -1,7 +1,8 @@
 #!/bin/bash
 #################################################
 # This script starts the monitoring. If it is 	#
-# already running, it is restarted.		#
+# already running, it is restarted.		        #
+# This starts the IFNOP I/O monitoring!         #
 #################################################
 source ../.env
 
