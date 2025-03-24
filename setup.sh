@@ -43,10 +43,17 @@ echo "[$(date)]: Basic setup done." >> $BASEDIR/logs/main.log
 
 echo "Next steps:"
 echo "1) Adapt .env"
-echo "2) Setup of services:"
+echo "2) Configure additional monitoring (OPTIONAL)"
+echo "3) Put a valid VOMS proxy inside ./proxy. NOTE: in this directory must only be one file!!!"
+echo "3) Setup of services:"
 echo "   - Reporting"
 echo "   - CVMFS grid-sec"
 echo "   - "
 echo "   - Optional: I/O node monitoring: adapt ifnop config file"
 echo "3) Create"
 
+
+
+
+
+# Reporting: STATUS +
