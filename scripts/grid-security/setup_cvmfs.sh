@@ -3,8 +3,9 @@
 # We do not configure/deploy a squid here as it is only one download once in a while
 BASEDIR=<Replace>
 echo "[$(date)]: Updating /etc/grid-security..." >> "$BASEDIR"/logs/main.log
-cd "$BASEDIR"/cvmfsexec
+rm -r "$BASEDIR"/cvmfs-grid-certs/grid-security
 
+cd "$BASEDIR"/cvmfsexec
 ./cvmfsexec grid.cern.ch -- cp -r /cvmfs/grid.cern.ch/etc/grid-security "$BASEDIR"/cvmfs-grid-certs
 if [ $? -ne 0 ]; then
   echo "[$(date)]: Update failed." >> "$BASEDIR"/logs/main.log

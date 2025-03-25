@@ -37,7 +37,8 @@ sed -i "s|^ExecStart=.*|ExecStart=${BASEDIR}/scripts/grid-security/setup_cvmfs.s
 echo "[$(date)]: Copy units..." >> "$BASEDIR"/logs/main.log
 cp "$BASEDIR"/scripts/grid-security/gridsecurity.timer ~/.config/systemd/user/
 cp "$BASEDIR"/scripts/grid-security/gridsecurity.service ~/.config/systemd/user/
-echo "[$(date)]: $(ls ~/.config/systemd/user/)" >> "$BASEDIR"/logs/main.log
+cp "$BASEDIR"/scripts/grid-security/gridsecurity-restart.service ~/.config/systemd/user/
+echo "[$(date)]: UNITS: $(ls ~/.config/systemd/user/)" >> "$BASEDIR"/logs/main.log
 
 # Make executable
 chmod +x ./scripts/grid-security/setup_cvmfs.sh
