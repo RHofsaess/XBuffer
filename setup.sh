@@ -47,6 +47,7 @@ echo "[$(date)]: Enable CVMFS unit and timer" >> "$BASEDIR"/logs/main.log
 systemctl --user daemon-reload
 systemctl --user restart gridsecurity.service
 systemctl --user enable gridsecurity.timer
+systemctl --user start gridsecurity.timer
 
 # Get monitoring tool
 echo "[$(date)]: Cloning ifnop..." >> "$BASEDIR"/logs/main.log
