@@ -2,7 +2,7 @@
 Description=Updated grid-security via CVMFSEXEC
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=<TO_BE_REPLACED>
 RemainAfterExit=true
 

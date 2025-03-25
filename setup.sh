@@ -2,7 +2,7 @@
 #################################################
 # This script creates all necessary directories #
 # and sets the permissions.                     #
-# +++++ Adapt the BASEDIR for usage! +++++	#
+# Additionally, automation is deployed.         #
 #################################################
 
 # ---------- Config ----------
@@ -39,16 +39,21 @@ cp "$BASEDIR"/scripts/grid-security/gridsecurity.timer ~/.config/systemd/user/
 cp "$BASEDIR"/scripts/grid-security/gridsecurity.service ~/.config/systemd/user/
 echo "[$(date)]: $(ls ~/.config/systemd/user/)" >> "$BASEDIR"/logs/main.log
 
+# Make executable
+chmod +x ./scripts/grid-security/setup_cvmfs.sh
+
 # Enable timer
 echo "[$(date)]: Enable CVMFS unit and timer" >> "$BASEDIR"/logs/main.log
 systemctl --user daemon-reload
-systemctl --user start $(pwd)../../.config/systemd/user/gridsecurity.service
-systemctl --user enable $(pwd)../../.config/systemd/user/gridsecurity.timer
+systemctl --user restart gridsecurity.service
+systemctl --user enable gridsecurity.timer
 
 # Get monitoring tool
 echo "[$(date)]: Cloning ifnop..." >> "$BASEDIR"/logs/main.log
 git clone https://github.com/RHofsaess/ifnop.git >> "$BASEDIR"/logs/main.log
 
+# Set config flag
+sed -i "s|<set-via-setup-script>|1|g" "$BASEDIR"/.env
 echo "[$(date)]: Basic setup done." >> "$BASEDIR"/logs/main.log
 
 echo "Next steps:"
