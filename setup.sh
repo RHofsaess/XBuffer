@@ -30,17 +30,20 @@ cd ./cvmfsexec || exit
 cd "$BASEDIR" || exit
 
 # Setup automated update service for /etc/grid-security
+sed -i "s|<Replace>|${BASEDIR}|g" "$BASEDIR"/scripts/grid-security/setup_cvmfs.sh
 sed -i "s|^ExecStart=.*|ExecStart=${BASEDIR}/scripts/grid-security/setup_cvmfs.sh|" "$BASEDIR"/scripts/grid-security/gridsecurity.service
-sed -i "s|<Replace>|${BASEDIR}|g" setup_script.sh
+
 # Copy units
 echo "[$(date)]: Copy units..." >> "$BASEDIR"/logs/main.log
-cp "$BASEDIR"/scripts/grid-security/gridsecurity.service ~/.config/systemd/user/
 cp "$BASEDIR"/scripts/grid-security/gridsecurity.timer ~/.config/systemd/user/
+cp "$BASEDIR"/scripts/grid-security/gridsecurity.service ~/.config/systemd/user/
+echo "[$(date)]: $(ls ~/.config/systemd/user/)" >> "$BASEDIR"/logs/main.log
 
 # Enable timer
 echo "[$(date)]: Enable CVMFS unit and timer" >> "$BASEDIR"/logs/main.log
 systemctl --user daemon-reload
-systemctl --user enable "$BASEDIR"/scripts/grid-security/gridsecurity.timer
+systemctl --user start $(pwd)../../.config/systemd/user/gridsecurity.service
+systemctl --user enable $(pwd)../../.config/systemd/user/gridsecurity.timer
 
 # Get monitoring tool
 echo "[$(date)]: Cloning ifnop..." >> "$BASEDIR"/logs/main.log
