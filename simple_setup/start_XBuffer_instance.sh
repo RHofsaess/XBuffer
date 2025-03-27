@@ -33,25 +33,15 @@ if [[ "$ENABLE_CACHE" -eq 1 ]]; then
             echo "[$(date)]: Cache directory created." | tee -a "$LOGDIR"/main.log
         fi
     else
-        echo "[$(date)]: The workspace '$WORKSPACE' does not exist." | tee -a "$LOGDIR"/main.log
+        echo "[$(date)]: [ERROR] The workspace '$WORKSPACE' does not exist." | tee -a "$LOGDIR"/main.log
         echo "[$(date)]: Please create one or disable caching!" | tee -a "$LOGDIR"/main.log
         exit 1
     fi
 else
-    echo "[$(date)]: Caching not enabled!" | tee -a "$LOGDIR"/main.log
+    echo "[$(date)]: Running without caching." | tee -a "$LOGDIR"/main.log
 fi
 
-# VOMS proxy available?
-echo "[$(date)]: Checking for VOMS Proxy..." | tee -a "$LOGDIR"/main.log
-if [[ $(find ./proxy -type f | wc -l) -eq 1 ]]; then
-    echo "[$(date)]: One proxy found: $(ls ./proxy)." | tee -a "$LOGDIR"/main.log
-else
-    echo "[$(date)]: +++++ ERROR +++++" | tee -a "$LOGDIR"/main.log
-    echo "[$(date)]: In ./proxy only one valid VOMS proxy is allowed!" | tee -a "$LOGDIR"/main.log
-    exit 1
-fi
-
-# Check if proxy is valid:
+# Check if a valid VOMS proxy is available
 voms_remaining() {
     # function to check remaining time of voms proxy
     # return the remaining time in seconds
@@ -68,13 +58,24 @@ voms_remaining() {
 
     echo $total_seconds
 }
-remaining=voms_remaining
-if [[ ! remaining -gt 0 ]]; then
-    echo "[$(date)]: VOMS proxy not valid!" | tee -a "$LOGDIR"/main.log
-    exit 1
+
+echo "[$(date)]: Checking for VOMS Proxy..." | tee -a "$LOGDIR"/main.log
+if [[ $(find ./proxy -type f | wc -l) -eq 1 ]]; then
+    echo "[$(date)]: Proxy file found: $(ls ./proxy). Checking validity..." | tee -a "$LOGDIR"/main.log
+    # Check if proxy is valid:
+    remaining=voms_remaining
+    if [[ ! remaining -gt 0 ]]; then
+        echo "[$(date)]: VOMS proxy not valid!" | tee -a "$LOGDIR"/main.log
+        exit 1
+    else
+        echo "[$(date)]: Found VOMS proxy with ${remaining}s remaining." | tee -a "$LOGDIR"/main.log
+    fi
 else
-    echo "[$(date)]: Found VOMS proxy with ${remaining}s remaining." | tee -a "$LOGDIR"/main.log
+    echo "[$(date)]: [ERROR] In ./proxy only one valid VOMS proxy is allowed!" | tee -a "$LOGDIR"/main.log
+    exit 1
 fi
+
+exit 0
 
 # Stop old instances with the same name, if running
 running_instance=$(apptainer instance list | grep -w "^$INSTANCE\b")
