@@ -45,10 +45,10 @@ fi
 voms_remaining() {
     # function to check remaining time of voms proxy
     # return the remaining time in seconds
-    echo "[$(date)]: Check remaining time of VOMS proxy" | tee -a "$LOGDIR"/main.log
-    command="export X509_USER_PROXY=/proxy/$(ls ./proxy/); voms-proxy-info --all"
+    echo "[$(date)]: Check remaining time of VOMS proxy" >> "$LOGDIR"/main.log
+    command="export X509_USER_PROXY=/proxy/$(ls "$BASEDIR"/proxy/); voms-proxy-info | grep -m 1 timeleft | sed 's/^timeleft[[:space:]]*:[[:space:]]*//'"
     command_output=$(apptainer run --bind "$BASEDIR"/proxy/:/proxy docker://"${IMAGE}" bash -c "$command")
-    echo "[$(date)]: ${command_output}" | tee -a "$LOGDIR"/main.log
+    echo "[$(date)]: ${command_output}" >> "$LOGDIR"/main.log
     IFS=":" read -r hours minutes seconds <<< "${command_output}"
 
     hours=$((10#$hours))
@@ -60,10 +60,10 @@ voms_remaining() {
 }
 
 echo "[$(date)]: Checking for VOMS Proxy..." | tee -a "$LOGDIR"/main.log
-if [[ $(find ./proxy -type f | wc -l) -eq 1 ]]; then
-    echo "[$(date)]: Proxy file found: $(ls ./proxy). Checking validity..." | tee -a "$LOGDIR"/main.log
+if [[ $(find "$BASEDIR"/proxy -type f | wc -l) -eq 1 ]]; then
+    echo "[$(date)]: Proxy file found: $(ls "$BASEDIR"/proxy). Checking validity..." | tee -a "$LOGDIR"/main.log
     # Check if proxy is valid:
-    remaining=voms_remaining
+    remaining=$(voms_remaining)
     if [[ ! remaining -gt 0 ]]; then
         echo "[$(date)]: VOMS proxy not valid!" | tee -a "$LOGDIR"/main.log
         exit 1
@@ -71,7 +71,7 @@ if [[ $(find ./proxy -type f | wc -l) -eq 1 ]]; then
         echo "[$(date)]: Found VOMS proxy with ${remaining}s remaining." | tee -a "$LOGDIR"/main.log
     fi
 else
-    echo "[$(date)]: [ERROR] In ./proxy only one valid VOMS proxy is allowed!" | tee -a "$LOGDIR"/main.log
+    echo "[$(date)]: [ERROR] In /proxy only one valid VOMS proxy is allowed!" | tee -a "$LOGDIR"/main.log
     exit 1
 fi
 
@@ -93,7 +93,7 @@ fi
 # Start the instance and run the caching proxy
 if [[ "$ENABLE_CACHE" -eq 1 ]]; then
     apptainer instance start --bind "$CACHE":/cache,"$BASEDIR"/proxy/:/proxy,"$BASEDIR"/configs:/xrdconfigs,"$BASEDIR"/cvmfs-grid-certs/grid-security:/etc/grid-security,"$BASEDIR"/logs:/logs,"$BASEDIR"/scripts:/scripts docker://"${IMAGE}" "$INSTANCE"
-    apptainer exec instance://proxy /bin/bash -c 'export X509_USER_PROXY=/proxy/$( (ls ./proxy) ); xrootd -c /xrdconfigs/xrootd_caching_server-simple.cfg -l /logs/proxy.log' &
+    apptainer exec instance://proxy /bin/bash -c 'export X509_USER_PROXY=/proxy/$( (ls /proxy) ); xrootd -c /xrdconfigs/xrootd_caching_server-simple.cfg -l /logs/proxy.log' &
     if [[ $? -eq 0 ]]; then
         echo "[$(date)]: Instance with caching started successfully." | tee -a "$LOGDIR"/main.log
     else
@@ -102,7 +102,7 @@ if [[ "$ENABLE_CACHE" -eq 1 ]]; then
     fi
 else
     apptainer instance start --bind "$BASEDIR"/proxy/:/proxy,"$BASEDIR"/configs:/xrdconfigs,"$BASEDIR"/cvmfs-grid-certs/grid-security:/etc/grid-security,"$BASEDIR"/logs:/logs,"$BASEDIR"/scripts:/scripts docker://"${IMAGE}" "$INSTANCE"
-    apptainer exec instance://proxy /bin/bash -c 'export X509_USER_PROXY=/proxy/$( (ls ./proxy) ); xrootd -c /xrdconfigs/xrootd_proxy_server-simple.cfg -l /logs/proxy.log' &
+    apptainer exec instance://proxy /bin/bash -c 'export X509_USER_PROXY=/proxy/$( (ls /proxy) ); xrootd -c /xrdconfigs/xrootd_proxy_server-simple.cfg -l /logs/proxy.log' &
     if [[ $? -eq 0 ]]; then
         echo "[$(date)]: Instance without caching started successfully." | tee -a "$LOGDIR"/main.log
     else
