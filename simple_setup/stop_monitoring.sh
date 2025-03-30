@@ -5,7 +5,7 @@
 #################################################
 source ../.env
 
-echo "[$(date)]: Stopping monitoring." | tee -a "$LOGDIR"/main.log
+echo "[$(date)]: > Stopping monitoring." | tee -a "$LOGDIR"/main.log
 apptainer exec instance://"${INSTANCE}" /bin/bash -c "kill -2 $(ps aux | awk '/main.py/ && !/grep/ {print \$2}')"
 
 monit_running=$(apptainer exec instance://"${INSTANCE}" /bin/bash -c "ps aux | grep -v grep | grep '/main.py' -q")

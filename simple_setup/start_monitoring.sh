@@ -6,7 +6,7 @@
 #################################################
 source ../.env
 
-echo "[$(date)]: Starting additional instance monitoring..." | tee -a "$LOGDIR"/main.log
+echo "[$(date)]: > Starting additional instance monitoring..." | tee -a "$LOGDIR"/main.log
 
 # Check, if additional monitoring is installed
 if [[ "$ENABLE_MONIT" -eq 0 ]]; then
@@ -38,6 +38,7 @@ if [[ "$monit_running" -eq 0 ]]; then
         echo "[$(date)]: Monitoring successfully started." | tee -a "$LOGDIR"/main.log
     else
         echo "[$(date)]: Monitoring start failed." | tee -a "$LOGDIR"/main.log
+        exit 1
     fi
 else
     apptainer exec instance://"${INSTANCE}" /bin/bash -c "python3 $IFNOP_PATH/main.py --config $IFNOP_CONFIG" &
@@ -45,5 +46,6 @@ else
         echo "[$(date)]: Monitoring successfully started." | tee -a "$LOGDIR"/main.log
     else
         echo "[$(date)]: Monitoring start failed." | tee -a "$LOGDIR"/main.log
+        exit 1
     fi
 fi

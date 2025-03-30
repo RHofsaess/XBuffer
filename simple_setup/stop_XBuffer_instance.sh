@@ -5,7 +5,7 @@
 #################################################
 source ../.env
 
-echo "[$(date)]: Stopping >>$1<<." | tee -a "$LOGDIR"/main.log
+echo "[$(date)]: > Stopping >>$1<<." | tee -a "$LOGDIR"/main.log
 
 # Stop instances with the same name, if running
 running_instance=$(apptainer instance list | grep -w "^$INSTANCE\b")

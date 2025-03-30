@@ -21,7 +21,7 @@ if [[ ! $INSTANCE_CONFIG_EXPORTED -eq 1 ]]; then
 fi
 # ----------------------------
 
-echo "[$(date)]: Starting instance >>${INSTANCE}<<..." | tee -a "$LOGDIR"/main.log
+echo "[$(date)]: > Starting instance >>${INSTANCE}<<..." | tee -a "$LOGDIR"/main.log
 # If caching should be used, a workspace is required
 # Check if workspace exists
 if [[ "$ENABLE_CACHE" -eq 1 ]]; then
