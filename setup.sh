@@ -59,15 +59,16 @@ sed -i "s|<set-via-setup-script>|1|g" "$BASEDIR"/.env
 echo "[$(date)]: Basic setup done." >> "$BASEDIR"/logs/main.log
 
 echo "Next steps:"
-echo "1) Adapt .env"
-echo "2) Configure additional monitoring (OPTIONAL)"
-echo "3) Put a valid VOMS proxy inside ./proxy. NOTE: in this directory must only be one file!!!"
-echo "3) Setup of services:"
-echo "   - CVMFS grid-sec"
-echo "   - Reporting"
+echo "1) Put a valid VOMS proxy inside ${BASEDIR}/proxy. NOTE: in this directory must only be one file!!!"
+echo "2) Adapt .env"
+echo "3) Configure additional monitoring (OPTIONAL)"
+echo "4) Start XBuffer: ${BASEDIR}/scripts/start_XBuffer_instance.sh"
+echo "5) Start optional monitoring: ${BASEDIR}/scripts/start_monitoring.sh"
+echo "OPTIONAL: Configure and setup additional reporting"
+echo "   - Adapt reporting script to site"
+echo "   - Configure systemd units"
 echo "   - "
-echo "   - Optional: I/O node monitoring: adapt ifnop config file"
-echo "3) Create"
+
 
 
 
