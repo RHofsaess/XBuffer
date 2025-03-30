@@ -45,7 +45,7 @@ fi
 voms_remaining() {
     # function to check remaining time of voms proxy
     # return the remaining time in seconds
-    echo "[$(date)]: Check remaining time of VOMS proxy" >> "$LOGDIR"/main.log
+    echo "[$(date)]: Check remaining time of VOMS proxy:" >> "$LOGDIR"/main.log
     command="export X509_USER_PROXY=/proxy/$(ls "$BASEDIR"/proxy/); voms-proxy-info | grep -m 1 timeleft | sed 's/^timeleft[[:space:]]*:[[:space:]]*//'"
     command_output=$(apptainer run --bind "$BASEDIR"/proxy/:/proxy docker://"${IMAGE}" bash -c "$command")
     echo "[$(date)]: ${command_output}" >> "$LOGDIR"/main.log
@@ -75,9 +75,7 @@ else
     exit 1
 fi
 
-exit 0
-
-# Stop old instances with the same name, if running
+# Check for running instance with same name and stop in case
 running_instance=$(apptainer instance list | grep -w "^$INSTANCE\b")
 if [[ -n $running_instance ]]; then
     echo "[$(date)]: Instance >>${INSTANCE}<< is running. Stopping it now..." | tee -a "$LOGDIR"/main.log
@@ -117,4 +115,3 @@ if [[ "$ENABLE_MONIT" -eq 1 ]]; then
 else
     echo "[$(date)]: Additional monitoring disabled." | tee -a "$LOGDIR"/main.log
 fi
-
