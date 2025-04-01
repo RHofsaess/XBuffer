@@ -109,7 +109,7 @@ services:
       - type: bind
         source: ./scripts
         target: /scripts
-    entrypoint: ../scripts/monitoring_and_reporting/monit-cache.sh
+    entrypoint: ./scripts/monit-cache.sh
     ports:
       - "9931:9931/udp"
     networks:
@@ -136,7 +136,7 @@ services:
       - type: bind
         source: ./scripts
         target: /scripts
-    entrypoint: ../scripts/monitoring_and_reporting/monit-redirector.sh
+    entrypoint: ./scripts/monit-redirector.sh
     ports:
       - "9930:9930/udp"
     networks:

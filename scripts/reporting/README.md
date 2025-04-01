@@ -1,15 +1,16 @@
 # Logging and Reporting
 To ensure a reliable operation of the service, a logging and reporting toolset is provided.
-The idea is that a check script is ran every X minutes that watches the setup and logs or reports the output to an opensearch.
-NOTE: This is independend from the monitoring provided from the proxy itself and tools like e.g. `ifnop`.
+The idea is that a check script is running every X minutes that watches the setup and logs or reports the output to an opensearch.
+NOTE: This is independent of the monitoring provided from the proxy itself and tools like e.g. `ifnop`.
 
 Additionally, some self-healing mechanisms can be activated in the `run_checks.sh` that e.g. restart the service, if the check finds the service not running.
 
-In principle, the watch service can be ran in three ways:
-- systemd-based reporting: A systemd unit and timer are used to regulary fetch and push status information to opensearch
+In principle, the watch service can be run in three ways:
+- systemd-based reporting: A systemd unit and timer are used to regularly fetch and push status information to opensearch
 - local logging: just log the status to file -- can be used as systemd timer too
 - external management node via ssh: run the report script externally
-If `systemctl --user` is available, this way should be prefered, as it avoids problems with e.g. MFA that would occur with external management nodes.
+
+If `systemctl --user` is available, this way should be preferred, as it avoids problems with e.g. MFA that would occur with external management nodes.
 
 # Overview
 - `environment.txt`: Includes the env variables the push script is reading.
@@ -23,7 +24,7 @@ If `systemctl --user` is available, this way should be prefered, as it avoids pr
 - `reporting.sh`: It sources the venv, exports the `environment.txt` to be accessible for the push script, runs the checks and optionally pushes the data to OS.
 - `reporting_with_mm.sh`: It sources the venv, exports the `environment.txt` to be accessible for the push script, runs the checks pushes the data to OS and optionally sends mattermost alerts.
 - `run_checks.sh`: This script runs all checks and returns a json as a string. This can be read-in by a push script. Everything is also logged to `logs/reporting`.
-- `./systemd`: folder containing the user units for automatization.
+- `./systemd`: folder containing the user units for automation.
 - `xrootd_influx_exporter.py`: Script for listening to UPD, digesting the xml of the xrd summary monitoring, and pushing it to influxDB.
 - `xrootd_influx_exporter_flat.py`: Same but in flat format (like json).
 
@@ -31,8 +32,21 @@ If `systemctl --user` is available, this way should be prefered, as it avoids pr
 Several ways to set up the reporting are available.
 
 ## General
-1) Create a python venv: `$ python3 -m venv venv` and `pip install opensearch-py` into it.
+1) Run `setup_reporting.sh`
 2) Adapt the `environment.txt`: Add OpenSearch and (optionally) Mattermost configs. An example is given.
+3)
+
+## OpenSearch (`systemd`-based)
+1) Adapt the files. The `reporting_*.sh` is just a wrapper for the check script. You need to adapt the paths, also in the systemd units. #TODO outdated!
+2) Add checks to `run_checks.sh` adapted to your needs. The script returns the check results as a json string.
+3) +++++ OPTIONAL +++++ Push an index mapping manually to OS to ensure data types.
+4) Copy the units to: `~/.config/systemd/user/`.
+5) Reload: `$ systemctl --user daemon-reload`.
+6) Enable the timer: `$ systemctl --user enable --now reporting.timer`.
+7) Verify: `$ systemctl --user status reporting.timer` or `$ journalctl --user-unit reporting.service`.
+
+### Setting Up the Data
+???
 
 ## Mattermost Alert Bot
 1) Create a bot in mattermost and give him for the beginning `system administrator` permissions (NOTE: This SHOULD BE CHANGED later!)
@@ -44,24 +58,9 @@ NOTE: This only works with admin permissions. It can also be that the desired ch
 6) Adapt the scripts, units etc to correctly use `push_json_to_opensearch_with_mm.py` and add the required config keys to the environment.
 7) Change the permissions of the bot to `Member` with the `post:all` permission set.
 
-## OpenSearch (`systemd`-based)
-1) Adapt the files. The `reporting_*.sh` is just a wrapper for the check script. You need to adapt the paths, also in the systemd units.
-2) Add checks to `run_checks.sh` adapted to your needs. The script returns the check results as a json string.
-3) +++++ OPTIONAL +++++ Push an index mapping manually to OS to ensure data types.
-4) Copy the units to: `~/.config/systemd/user/`.
-5) Reload: `$ systemctl --user daemon-reload`.
-6) Enable the timer: `$ systemctl --user enable --now reporting.timer`.
-7) Verify: `$ systemctl --user status reporting.timer` or `$ journalctl --user-unit reporting.service`.
-
-### Setting Up the Data
-
-
 ## Local
 The setup can also run locally and we can log everything to file.
 This can also be realized as a systemd timer by just adapting the `reporting.sh` to only run the check script without pushing.
 
 ## External
-TODO
-
-
-# TODO
+DEPRECATED
