@@ -5,7 +5,13 @@ export OS_HOST=my-machine.kit.edu
 export OS_PORT=9200
 export OS_USER=my-os-user
 export OS_PASSWORD=my-password
-export OS_INDEX=my-proy-$(date +%m)
+export OS_INDEX=my-proxy-$(date +%m)
+
+#############################
+# Other
+#############################
+export DEBUG=0
+export RESTART=0
 
 #############################
 # Optional: Mattermost Config

@@ -1,17 +1,17 @@
-#!/bin/python3
+#!/bin/env python3
+import json
+import logging
 import os
 import sys
-import json
-import requests
-import logging
 from logging.handlers import RotatingFileHandler
 
+import requests
 from opensearchpy import OpenSearch
 
 ##################################
-OS_HOST = os.getenv('OS_HOST')  #'localhost'
+OS_HOST = os.getenv('OS_HOST')  # 'localhost'
 OS_PORT = os.getenv('OS_PORT')  # 9200
-OS_AUTH = (os.getenv('OS_USER'), os.getenv('OS_PASSWORD')) 
+OS_AUTH = (os.getenv('OS_USER'), os.getenv('OS_PASSWORD'))
 OS_INDEX = os.getenv('OS_INDEX')
 ##################################
 MM_URL = os.getenv('MM_URL')  # +++++ ATTENTION +++++: only works with python > 3.6.8
@@ -23,7 +23,7 @@ MM_CHANNEL = os.getenv('MM_CHANNEL')  # only for logging
 
 # ########## Mattermost ##########
 def send_message(logger: logging.Logger, message: str) -> None:
-    '''
+    """
     Function to send messages as a mattermost bot to a dedicated channel if an alert message is handed over.
     
     Note: In older python versions (tested with 3.6.8), requests cannot handle f-strings and a hard-coding is required!
@@ -36,27 +36,27 @@ def send_message(logger: logging.Logger, message: str) -> None:
     Return:
     -------
     None
-    '''
+    """
     if len(message) < 1:  # only send if alert is triggert
         return
 
     headers = {
-            'Authorization': f'Bearer {ACCESS_TOKEN}',
-            'Content-Type': 'application/json'
+        'Authorization': f'Bearer {MM_ACCESS_TOKEN}',
+        'Content-Type': 'application/json'
     }
     data = {
-            'channel_id': MM_CHANNEL_ID,
-            'team_id' : MM_TEAM_ID,
-            'message': message
+        'channel_id': MM_CHANNEL_ID,
+        'team_id': MM_TEAM_ID,
+        'message': message
     }
     logger.debug(f'[MMBot] Data: {data}')
 
     try:
         response = requests.post(
-                #f'{MM_URL}/api/v4/posts',  # +++++ ATTENTION +++++: only works with python > 3.6.8
-                'https://your.mattermost.url/api/v4/posts',
-                headers=headers,
-                json=data
+            # f'{MM_URL}/api/v4/posts',  # +++++ ATTENTION +++++: only works with python > 3.6.8
+            'https://your.mattermost.url/api/v4/posts',
+            headers=headers,
+            json=data
         )
         logger.debug(f'Full response: {response.text}')
         if response.status_code != 201:
@@ -67,8 +67,9 @@ def send_message(logger: logging.Logger, message: str) -> None:
     except Exception as e:
         logger.error(f'Sending failed with error: {e}')
 
+
 def prepare_report(data: json) -> str:
-    '''
+    """
     This function is used to prepare the input json and create alerts that should be sent to mattermost.
     It is creating a report message based on selected alert criteria and returns a message string.
 
@@ -79,7 +80,7 @@ def prepare_report(data: json) -> str:
     Return:
     --------
     message: str
-    '''
+    """
     message = ''
 
     if not data:
@@ -89,12 +90,13 @@ def prepare_report(data: json) -> str:
             message += 'Instance not running!\n'
         if (data["instance_running"] == 2):
             message += 'Instance was restarted!\n'
-        if (data["voms_remaining_s"] < 36000 ):
+        if (data["voms_remaining_s"] < 36000):
             message += f'Voms proxy is running out in {data["voms_remaining_s"]}s\n'
         if len(message) > 1:
             return '+++++ Alert +++++\n' + message
         else:
             return message  # empty string
+
 
 # ########## LOGGING ##########
 # Create a custom logger
@@ -107,7 +109,7 @@ logger.setLevel(logging.INFO)  # This can be adjusted to INFO, WARNING, etc.
 console_handler = logging.StreamHandler()
 file_handler = RotatingFileHandler(
     'opensearch_exporter.log',
-    maxBytes=5*1024*1024,  # 5 MB
+    maxBytes=5 * 1024 * 1024,  # 5 MB
     backupCount=5
 )
 
@@ -121,8 +123,8 @@ file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(mess
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)')
 
-#console_handler.setFormatter(console_format)
-#file_handler.setFormatter(file_format)
+# console_handler.setFormatter(console_format)
+# file_handler.setFormatter(file_format)
 console_handler.setFormatter(formatter)
 file_handler.setFormatter(formatter)
 
@@ -143,7 +145,6 @@ try:
 except Exception as e:
     logger.error(f'Error connecting to OpenSearch: {e}')
     exit(1)
-
 
 # ########## GET DATA ##########
 input_data = sys.stdin.read()

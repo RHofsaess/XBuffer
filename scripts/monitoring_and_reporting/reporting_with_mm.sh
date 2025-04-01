@@ -8,5 +8,11 @@
 # the path adapted. The environment.txt must be #
 # filled.                                       #
 #################################################
-source /path/to/venv/bin/activate
-source /path/to/environment.txt && /path/to/run_checks.sh | python3 /path/to/push_json_to_opensearch_with_mm.py
+source ../../.env
+
+source "$BASEDIR"/scripts/monitoring_and_reporting/reporting_venv/bin/activate
+source "$BASEDIR"/scripts/monitoring_and_reporting/environment.txt && "$BASEDIR"/scripts/monitoring_and_reporting/run_checks.sh | \
+        python3 "$BASEDIR"/scripts/monitoring_and_reporting/push_json_to_opensearch_with_mm.py
+
+
+

@@ -7,10 +7,12 @@ from logging.handlers import RotatingFileHandler
 
 from opensearchpy import OpenSearch
 
+##################################
 OS_HOST = os.getenv('OS_HOST')  #'localhost'
 OS_PORT = os.getenv('OS_PORT')  # 9200
 OS_AUTH = (os.getenv('OS_USER'), os.getenv('OS_PASSWORD')) 
 OS_INDEX = os.getenv('OS_INDEX')
+##################################
 
 # ########## LOGGING ##########
 # Create a custom logger

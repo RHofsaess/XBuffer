@@ -1,7 +1,11 @@
+###################################
+# THIS VERSION IS NOT RECOMMENDED #
+###################################
+import json
 import os
 import sys
 import xml.etree.ElementTree as ET
-import json
+
 import influxdb_client
 from influxdb_client.client.write_api import SYNCHRONOUS
 
@@ -14,7 +18,7 @@ DEBUG = os.getenv('DEBUG', '0') == '1'
 # Create InfluxDB client
 client = influxdb_client.InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
 write_api = client.write_api(write_options=SYNCHRONOUS)
-    
+
 
 def xml_to_json(xml_str):
     """
@@ -26,6 +30,7 @@ def xml_to_json(xml_str):
     Returns:
         dict: The resulting JSON dictionary.
     """
+
     def parse_element(element):
         """
         Parse an XML element into a dictionary.
@@ -82,8 +87,9 @@ def xml_to_json(xml_str):
         stats_data = parse_children(root)
         json_data[root.tag].update(stats_data)  # Update with parsed stats data
         del json_data[root.tag]['stats']  # Remove the 'stats' key
-    
+
     return json_data
+
 
 def convert_to_point(id, data, metadata):
     """
@@ -117,6 +123,7 @@ def convert_to_point(id, data, metadata):
             points.append(point)
     return points
 
+
 def write_to_influx(json_data):
     """
     Write JSON data to InfluxDB.
@@ -140,15 +147,16 @@ def write_to_influx(json_data):
         if id in metadata:
             continue
         points.extend(convert_to_point(id, data, metadata))  # Convert to InfluxDB points
-    
+
     if DEBUG:
         print(f"Writing points to InfluxDB...")
-    
+
     # Write the points to InfluxDB
     write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=points)
 
     if DEBUG:
         print(f"----------End of iteration----------")
+
 
 if __name__ == "__main__":
     while True:
@@ -157,25 +165,25 @@ if __name__ == "__main__":
             line = sys.stdin.readline().strip()
             if not line:
                 continue
-            
+
             if DEBUG:
                 print(f"Received XML: {line}")
-            
+
             # Parse XML to JSON
             json_data = xml_to_json(line)
-            
+
             if DEBUG:
                 print(f"Converted JSON: {json.dumps(json_data, indent=2)}")
-            
+
             # Write to InfluxDB
             write_to_influx(json_data)
-        
+
         except Exception as e:
             print(f"Error: {e}", file=sys.stderr)
             if DEBUG:
                 import traceback
-                traceback.print_exc()
 
+                traceback.print_exc()
 
 """
 def fetch_data():
@@ -350,4 +358,3 @@ statistics (tod="1716804563" ver="v5.6.9" src="a95c7f8d9331:1094" tos="171680452
 |   |-- et: 0
 |   |-- toe: 1716804563
 """
-
