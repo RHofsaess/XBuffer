@@ -31,7 +31,7 @@ fi
 monit_running=$(apptainer exec instance://"$INSTANCE" /bin/bash -c "ps aux |grep -v grep | grep ifnop -q; echo \$?")
 if [[ "$monit_running" -eq 0 ]]; then
     echo "[$(date)]: Monitoring running. It will be stopped and restarted.\n----------" | tee -a "$LOGDIR"/main.log
-    ./stop_monitoring.sh
+    ./stop_IOmonitoring.sh
     echo "----------\n[$(date)]: Restarting..." | tee -a "$LOGDIR"/main.log
     apptainer exec instance://"${INSTANCE}" /bin/bash -c "python3 $IFNOP_PATH/main.py --config $IFNOP_CONFIG" &
     if [[ "$?" -eq 0 ]]; then

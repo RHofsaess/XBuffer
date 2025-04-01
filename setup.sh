@@ -63,7 +63,7 @@ echo "1) Put a valid VOMS proxy inside ${BASEDIR}/proxy. NOTE: in this directory
 echo "2) Adapt .env"
 echo "3) Configure additional monitoring (OPTIONAL)"
 echo "4) Start XBuffer: ${BASEDIR}/scripts/start_XBuffer_instance.sh"
-echo "5) Start optional monitoring: ${BASEDIR}/scripts/start_monitoring.sh"
+echo "5) Start optional monitoring: ${BASEDIR}/scripts/start_IOmonitoring.sh"
 echo "OPTIONAL: Configure and setup additional reporting"
 echo "   - Adapt reporting script to site"
 echo "   - Configure systemd units"

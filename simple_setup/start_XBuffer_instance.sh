@@ -111,7 +111,7 @@ fi
 
 # Start monitoring, if enabled
 if [[ "$ENABLE_MONIT" -eq 1 ]]; then
-    ./start_monitoring.sh
+    ./start_IOmonitoring.sh
 else
     echo "[$(date)]: Additional monitoring disabled." | tee -a "$LOGDIR"/main.log
 fi
